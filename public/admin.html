@@ -3,223 +3,559 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FGC Tournament Admin | LOY Software</title>
+  <title>Tournament Control Panel | LOY Software</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --void: #070406;
+      --fg: #f6eef1;
+      --muted: #b7a4aa;
+      --faint: #7d6b72;
+      --rose: #e07098;
+      --rose-bright: #f0a0b8;
+      --rose-deep: #9a2f58;
+      --rose-ink: #fff4f7;
+      --gold: #d4b06a;
+      --gold-bright: #f0dca0;
+      --gold-deep: #8a6430;
+      --font-display: "UnifrakturMaguntia", "Times New Roman", serif;
+      --font-sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+      --shadow-gold:
+        0 0 0 1px color-mix(in oklab, var(--gold) 55%, transparent),
+        inset 0 0 0 1px color-mix(in oklab, var(--gold-deep) 70%, #000 30%),
+        inset 0 0 22px rgb(0 0 0 / 0.55);
+      --shadow-inset:
+        inset 0 1px 0 rgb(255 255 255 / 0.04),
+        inset 0 -1px 0 rgb(0 0 0 / 0.5),
+        0 0 0 1px color-mix(in oklab, var(--gold) 28%, transparent);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: #0c0c12;
-      color: #e8e8e8;
-      min-height: 100vh;
-      padding: 1.5rem;
+
+    html, body {
+      min-height: 100%;
+      background: var(--void);
+      color: var(--fg);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
     }
-    h1 { color: #ff2a2a; margin-bottom: 0.5rem; font-size: 1.6rem; }
-    .subtitle { color: #888; margin-bottom: 1.5rem; font-size: 0.9rem; }
-    .grid {
+
+    body { overflow-x: hidden; }
+
+    button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: 0.5; }
+    input, select, button { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    .stage {
+      position: relative;
+      isolation: isolate;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      padding: clamp(48px, 6vw, 72px) clamp(18px, 3.2vw, 48px) clamp(36px, 4vw, 56px);
+      background:
+        radial-gradient(1200px 600px at 8% -10%, rgb(160 40 80 / 0.28), transparent 55%),
+        radial-gradient(900px 520px at 108% 110%, rgb(140 30 70 / 0.26), transparent 50%),
+        linear-gradient(155deg, #14080e 0%, #0a0508 42%, #160910 100%);
+    }
+
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.09;
+      background-image:
+        url("/ornaments/paw.png"),
+        url("/ornaments/paw.png"),
+        url("/ornaments/paw.png"),
+        url("/ornaments/paw.png");
+      background-repeat: no-repeat;
+      background-size: 72px, 54px, 46px, 64px;
+      background-position: 6% 8%, 92% 6%, 18% 78%, 78% 88%;
+    }
+
+    .stage-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .ornate-shell {
+      position: relative;
+      padding: clamp(18px, 2.6vw, 28px) clamp(16px, 2.2vw, 26px) clamp(16px, 2vw, 22px);
+      background: linear-gradient(180deg, rgb(22 12 16 / 0.92), rgb(8 5 7 / 0.96));
+      border-radius: 14px;
+      box-shadow:
+        0 0 0 1px #6b4e28,
+        0 0 0 3px #c4a265,
+        0 0 0 4px #3a2814,
+        0 0 0 5px #e0c07a,
+        0 24px 60px rgb(0 0 0 / 0.65),
+        inset 0 0 80px rgb(0 0 0 / 0.35);
+    }
+
+    .ornament {
+      position: absolute;
+      pointer-events: none;
+      z-index: 3;
+      user-select: none;
+    }
+    .bow-tl { top: -58px; left: -58px; width: min(190px, 30vw); transform: rotate(-10deg); }
+    .bow-tr { top: -56px; right: -60px; width: min(190px, 30vw); transform: scaleX(-1) rotate(-8deg); }
+    .bow-bl { bottom: -42px; left: -64px; width: min(168px, 28vw); transform: rotate(16deg); }
+    .panda { right: -22px; bottom: -28px; width: min(140px, 26vw); z-index: 4; filter: drop-shadow(0 8px 12px rgb(0 0 0 / 0.45)); }
+    .cross-bl { left: 18px; bottom: 10px; width: 28px; z-index: 4; }
+    .cross-br { right: 86px; bottom: 8px; width: 26px; z-index: 4; }
+
+    .title-wrap {
+      position: relative;
+      z-index: 2;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-      max-width: 1100px;
-    }
-    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
-    .card {
-      background: #16161f;
-      border: 1px solid #2a2a3a;
-      border-radius: 10px;
-      padding: 1.25rem;
-    }
-    .card h2 {
-      font-size: 1rem;
-      color: #ff6b6b;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid #2a2a3a;
-      padding-bottom: 0.5rem;
-    }
-    label {
-      display: block;
-      font-size: 0.8rem;
-      color: #999;
-      margin: 0.75rem 0 0.3rem;
-    }
-    input, select {
+      place-items: center;
+      margin: 4px auto 14px;
       width: 100%;
-      padding: 0.55rem 0.7rem;
-      background: #0d0d14;
-      border: 1px solid #333;
-      border-radius: 5px;
-      color: #fff;
-      font-size: 0.95rem;
+      max-width: 920px;
     }
-    input:focus, select:focus { outline: none; border-color: #ff2a2a; }
-    .row { display: flex; gap: 0.75rem; align-items: flex-end; }
-    .row > * { flex: 1; }
-    .score-controls {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      margin-top: 0.5rem;
-    }
-    .score-btn {
-      width: 42px;
-      height: 42px;
-      font-size: 1.4rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #222;
-      color: #fff;
-    }
-    .score-btn.plus { background: #1a5c1a; }
-    .score-btn.minus { background: #5c1a1a; }
-    .score-display {
-      font-size: 1.8rem;
-      font-weight: 700;
-      min-width: 40px;
+
+    .title-plaque {
+      position: relative;
+      width: 100%;
+      padding: 22px 36px 18px;
       text-align: center;
-    }
-    button.action {
-      margin-top: 1rem;
-      padding: 0.65rem 1rem;
-      background: #ff2a2a;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-    }
-    button.action:hover { background: #e02020; }
-    button.secondary {
-      background: #2a2a3a;
-      margin-top: 0.5rem;
-    }
-    button.secondary:hover { background: #3a3a4a; }
-    .signups-list {
-      max-height: 280px;
-      overflow-y: auto;
-      font-size: 0.85rem;
-    }
-    .signup-item {
-      padding: 0.5rem 0.6rem;
-      border-bottom: 1px solid #222;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-    }
-    .signup-item:hover { background: #1e1e28; }
-    .signup-item .tag { font-weight: 600; color: #fff; }
-    .signup-item .meta { color: #777; font-size: 0.8rem; }
-    .preview {
-      margin-top: 1.5rem;
-      padding: 1rem;
-      background: #0a0a10;
-      border: 1px dashed #333;
+      background: radial-gradient(120% 140% at 50% 0%, #2a1a20 0%, #10080c 62%, #0a0608 100%);
+      border: 1px solid var(--gold);
       border-radius: 8px;
-      font-family: monospace;
-      font-size: 0.85rem;
-      white-space: pre-wrap;
+      box-shadow:
+        0 0 0 2px #3a2814,
+        0 0 0 3px color-mix(in oklab, var(--gold-bright) 70%, #8a6430),
+        0 10px 24px rgb(0 0 0 / 0.55),
+        inset 0 1px 0 rgb(240 220 170 / 0.25);
     }
+
+    .title-plaque::before,
+    .title-plaque::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 22px;
+      height: 44px;
+      transform: translateY(-50%);
+      background: linear-gradient(180deg, #f0dca0, #c4a265 45%, #8a6430);
+    }
+    .title-plaque::before { left: -12px; clip-path: polygon(100% 50%, 0 0, 0 100%); }
+    .title-plaque::after { right: -12px; clip-path: polygon(0 50%, 100% 0, 100% 100%); }
+
+    .title-word {
+      font-family: var(--font-display);
+      font-size: clamp(1.2rem, 0.55rem + 2.1vw, 2.15rem);
+      line-height: 1.15;
+      color: #ef7ea4;
+      white-space: nowrap;
+      text-shadow:
+        0 0 1px #f3d7a2,
+        0 1px 0 #8a6430,
+        1px 0 0 #c4a265,
+        -1px 0 0 #c4a265,
+        0 3px 10px rgb(0 0 0 / 0.75);
+    }
+
+    .title-cross {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.7));
+    }
+    .title-cross.top { top: -18px; }
+    .title-cross.mid { bottom: -16px; width: 16px; }
+
     .status-bar {
+      position: relative;
+      z-index: 2;
       display: flex;
-      gap: 1rem;
+      gap: 10px;
       align-items: center;
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
+      margin: 8px 4px 14px;
+      font-size: 0.82rem;
+      color: var(--muted);
     }
     .dot {
       width: 10px; height: 10px;
       border-radius: 50%;
       background: #555;
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--gold) 30%, transparent);
     }
-    .dot.connected { background: #0f0; }
+    .dot.connected { background: #5fd08a; box-shadow: 0 0 8px #5fd08a; }
+
+    .panel-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, #141014 0%, #0c090b 100%);
+      border-radius: 10px;
+      padding: 14px 14px 12px;
+      box-shadow: var(--shadow-gold);
+    }
+
+    .panel-title {
+      margin: 0 0 10px;
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--rose-bright);
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+
+    .field-label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--fg);
+    }
+
+    .field-input,
+    .field-select {
+      width: 100%;
+      min-height: 36px;
+      padding: 6px 10px;
+      border: 0;
+      border-radius: 4px;
+      background: #1a1418;
+      color: var(--fg);
+      box-shadow: var(--shadow-inset);
+    }
+
+    .rose-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 38px;
+      margin-top: 12px;
+      padding: 8px 14px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--rose-ink);
+      font-weight: 600;
+      background: linear-gradient(180deg, #f0a8c0 0%, #d45a88 42%, #9a2f58 100%);
+      box-shadow:
+        0 0 0 1px #e8c98a,
+        0 0 0 2px #6b4e28,
+        inset 0 1px 0 rgb(255 255 255 / 0.35);
+    }
+    .rose-bar:hover { filter: brightness(1.08); }
+    .rose-bar:active { transform: scale(0.985); }
+
+    .score-row {
+      display: grid;
+      grid-template-columns: 1fr 88px 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .score-btn {
+      min-height: 40px;
+      border: 0;
+      color: var(--rose-ink);
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(180deg, #f0a8c0 0%, #d45a88 46%, #9a2f58 100%);
+      box-shadow: 0 0 0 1px #e8c98a, 0 0 0 2px #5a3e20, inset 0 1px 0 rgb(255 255 255 / 0.32);
+    }
+    .score-btn.minus { clip-path: polygon(14% 0, 100% 0, 100% 100%, 14% 100%, 0 50%); }
+    .score-btn.plus { clip-path: polygon(0 0, 86% 0, 100% 50%, 86% 100%, 0 100%); }
+    .score-btn:hover { filter: brightness(1.08); }
+
+    .score-value {
+      display: grid;
+      place-items: center;
+      min-height: 40px;
+      border-radius: 4px;
+      background: #141014;
+      box-shadow: var(--shadow-inset);
+      font-size: 1.35rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .load-wrap { position: relative; margin-top: 10px; }
+
+    .load-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      min-height: 34px;
+      padding: 6px 12px;
+      border: 0;
+      border-radius: 4px;
+      background: #1a1618;
+      color: var(--muted);
+      font-size: 0.86rem;
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--gold) 38%, transparent);
+    }
+    .load-bar:hover { color: var(--fg); }
+
+    .menu {
+      position: absolute;
+      z-index: 20;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      max-height: 220px;
+      overflow: auto;
+      padding: 4px;
+      background: #161014;
+      border-radius: 6px;
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--gold) 45%, transparent), 0 12px 28px rgb(0 0 0 / 0.55);
+    }
+    .menu[hidden] { display: none; }
+    .menu-item {
+      display: block;
+      width: 100%;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--fg);
+      font-size: 0.88rem;
+      text-align: left;
+    }
+    .menu-item:hover { background: color-mix(in oklab, var(--rose-deep) 45%, #1a1014); }
+    .menu-meta { display: block; margin-top: 1px; font-size: 0.75rem; color: var(--muted); }
+
+    .ghost-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .ghost-btn {
+      min-height: 38px;
+      padding: 6px 8px;
+      border: 0;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #1a1418, #120e10);
+      color: var(--fg);
+      font-size: 0.8rem;
+      font-weight: 500;
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--gold) 42%, transparent);
+    }
+    .ghost-btn:hover { background: linear-gradient(180deg, #24181e, #161014); }
+
+    .roster { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow: auto; }
+    .roster-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .roster-name { display: block; font-weight: 600; font-size: 0.95rem; }
+    .roster-meta { display: block; margin-top: 1px; font-size: 0.78rem; color: var(--muted); }
+    .roster-actions { display: flex; gap: 4px; }
+    .chip {
+      min-height: 28px;
+      padding: 2px 8px;
+      border: 0;
+      border-radius: 4px;
+      background: #1a1418;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 600;
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--gold) 28%, transparent);
+    }
+    .chip:hover { color: var(--fg); background: color-mix(in oklab, var(--rose-deep) 40%, #1a1418); }
+
+    .preview-panel { margin-top: 14px; padding: 12px 16px 14px; }
+    .preview-panel pre {
+      margin: 0;
+      overflow: auto;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: #efe6ea;
+      max-height: 180px;
+    }
+    .pushed-note { margin-top: 8px; font-size: 0.72rem; color: var(--muted); }
+
+    .loy-foot {
+      position: relative;
+      z-index: 2;
+      margin-top: 16px;
+      text-align: center;
+      color: var(--faint);
+      font-size: 0.75rem;
+    }
+    .loy-foot a { color: var(--rose-bright); text-decoration: none; }
+    .loy-foot a:hover { text-decoration: underline; }
+
+    @media (max-width: 860px) {
+      .panel-grid, .ghost-row, .field-grid { grid-template-columns: 1fr; }
+      .title-plaque::before, .title-plaque::after { display: none; }
+      .title-word { white-space: normal; font-size: clamp(1.2rem, 5.4vw, 1.7rem); }
+      .bow-bl { display: none; }
+      .bow-tl, .bow-tr { width: 110px; }
+      .panda { width: 92px; right: -6px; bottom: -10px; }
+    }
+
+    @media (max-width: 520px) {
+      .score-row { grid-template-columns: 1fr 72px 1fr; }
+      .field-grid { grid-template-columns: 1fr; }
+      .bow-tl { top: -22px; left: -18px; width: 86px; }
+      .bow-tr { top: -20px; right: -18px; width: 86px; }
+      .cross-br { display: none; }
+      .chip { min-height: 36px; min-width: 36px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
   </style>
 </head>
 <body>
-  <h1>Tournament Control Panel</h1>
-  <div class="subtitle">Realtime updates push to Streamlabs overlay instantly</div>
+  <div class="stage">
+    <div class="stage-inner">
+      <div class="ornate-shell">
+        <img src="/ornaments/bow.png" alt="" class="ornament bow-tl">
+        <img src="/ornaments/bow.png" alt="" class="ornament bow-tr">
+        <img src="/ornaments/bow.png" alt="" class="ornament bow-bl">
+        <img src="/ornaments/cross.png" alt="" class="ornament cross-bl">
+        <img src="/ornaments/cross.png" alt="" class="ornament cross-br">
+        <img src="/ornaments/panda.png" alt="Panda mascot" class="ornament panda">
 
-  <div class="status-bar">
-    <div class="dot" id="connDot"></div>
-    <span id="connStatus">Connecting...</span>
-    <span style="margin-left:auto; color:#666;" id="lastUpdated"></span>
-  </div>
+        <header class="title-wrap">
+          <img src="/ornaments/cross.png" alt="" class="title-cross top">
+          <div class="title-plaque">
+            <h1 class="title-word">Tournament Control Panel</h1>
+          </div>
+          <img src="/ornaments/cross.png" alt="" class="title-cross mid">
+        </header>
 
-  <div class="grid">
-    <!-- Match Info -->
-    <div class="card">
-      <h2>Match Info</h2>
-      <label>Tournament Name</label>
-      <input type="text" id="tournamentName" placeholder="Tekken 8 Open">
-      <label>Round / Phase</label>
-      <input type="text" id="round" placeholder="Winners Finals">
-      <div class="row">
-        <div>
-          <label>Best Of</label>
-          <select id="bestOf">
-            <option value="1">1</option>
-            <option value="3" selected>3</option>
-            <option value="5">5</option>
-            <option value="7">7</option>
-          </select>
+        <div class="status-bar">
+          <div class="dot" id="connDot"></div>
+          <span id="connStatus">Connecting...</span>
+          <span style="margin-left:auto" id="lastUpdated"></span>
         </div>
-        <div>
-          <label>Status</label>
-          <select id="status">
-            <option value="waiting">Waiting</option>
-            <option value="live">Live</option>
-            <option value="finished">Finished</option>
-          </select>
+
+        <div class="panel-grid">
+          <section class="panel">
+            <h2 class="panel-title">Match Info</h2>
+            <div class="field-grid">
+              <label class="field">
+                <span class="field-label">Tournament Name</span>
+                <input class="field-input" type="text" id="tournamentName" placeholder="Tekken 8 Open">
+              </label>
+              <label class="field">
+                <span class="field-label">Round / Phase</span>
+                <input class="field-input" type="text" id="round" placeholder="Winners Finals">
+              </label>
+              <label class="field">
+                <span class="field-label">Best Of</span>
+                <select class="field-select" id="bestOf">
+                  <option value="1">1</option>
+                  <option value="3" selected>3</option>
+                  <option value="5">5</option>
+                  <option value="7">7</option>
+                </select>
+              </label>
+              <label class="field">
+                <span class="field-label">Status</span>
+                <select class="field-select" id="status">
+                  <option value="waiting">Waiting</option>
+                  <option value="live">Live</option>
+                  <option value="finished">Finished</option>
+                </select>
+              </label>
+            </div>
+            <button class="rose-bar" type="button" onclick="pushFullUpdate()">Push Match Info</button>
+          </section>
+
+          <section class="panel">
+            <h2 class="panel-title">Player 1 (Left)</h2>
+            <div class="field-grid">
+              <label class="field">
+                <span class="field-label">Name / Tag</span>
+                <input class="field-input" type="text" id="p1Name" placeholder="Player 1">
+              </label>
+              <label class="field">
+                <span class="field-label">Character</span>
+                <input class="field-input" type="text" id="p1Char" placeholder="Jin / Kazuya / etc.">
+              </label>
+            </div>
+            <div class="field" style="margin-top:8px">
+              <span class="field-label">Score</span>
+              <div class="score-row">
+                <button type="button" class="score-btn minus" onclick="changeScore('p1', -1)" aria-label="Decrease player 1 score">−</button>
+                <div class="score-value" id="p1ScoreDisp">0</div>
+                <button type="button" class="score-btn plus" onclick="changeScore('p1', 1)" aria-label="Increase player 1 score">+</button>
+              </div>
+            </div>
+            <div class="load-wrap">
+              <button type="button" class="load-bar" onclick="toggleSignupMenu('p1')">Load from Signups ▾</button>
+              <div class="menu" id="p1Menu" hidden></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2 class="panel-title">Player 2 (Right)</h2>
+            <div class="field-grid">
+              <label class="field">
+                <span class="field-label">Name / Tag</span>
+                <input class="field-input" type="text" id="p2Name" placeholder="Player 2">
+              </label>
+              <label class="field">
+                <span class="field-label">Character</span>
+                <input class="field-input" type="text" id="p2Char" placeholder="Character">
+              </label>
+            </div>
+            <div class="field" style="margin-top:8px">
+              <span class="field-label">Score</span>
+              <div class="score-row">
+                <button type="button" class="score-btn minus" onclick="changeScore('p2', -1)" aria-label="Decrease player 2 score">−</button>
+                <div class="score-value" id="p2ScoreDisp">0</div>
+                <button type="button" class="score-btn plus" onclick="changeScore('p2', 1)" aria-label="Increase player 2 score">+</button>
+              </div>
+            </div>
+            <div class="load-wrap">
+              <button type="button" class="load-bar" onclick="toggleSignupMenu('p2')">Load from Signups ▾</button>
+              <div class="menu" id="p2Menu" hidden></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2 class="panel-title">Quick Actions</h2>
+            <div class="ghost-row">
+              <button type="button" class="ghost-btn" onclick="resetScores()">Reset Scores to 0</button>
+              <button type="button" class="ghost-btn" onclick="swapSides()">Swap Sides</button>
+              <button type="button" class="ghost-btn" onclick="pushFullUpdate()">Force Push All</button>
+            </div>
+            <h2 class="panel-title" style="margin-top:16px">Registered Players</h2>
+            <div class="roster" id="signupsList">Loading...</div>
+          </section>
         </div>
-      </div>
-      <button class="action" onclick="pushFullUpdate()">Push Match Info</button>
-    </div>
 
-    <!-- Player 1 -->
-    <div class="card">
-      <h2>Player 1 (Left)</h2>
-      <label>Name / Tag</label>
-      <input type="text" id="p1Name" placeholder="Player 1">
-      <label>Character</label>
-      <input type="text" id="p1Char" placeholder="Jin / Kazuya / etc.">
-      <label>Score</label>
-      <div class="score-controls">
-        <button class="score-btn minus" onclick="changeScore('p1', -1)">−</button>
-        <div class="score-display" id="p1ScoreDisp">0</div>
-        <button class="score-btn plus" onclick="changeScore('p1', 1)">+</button>
+        <section class="panel preview-panel">
+          <h2 class="panel-title">Preview</h2>
+          <pre id="preview">Waiting for state...</pre>
+          <p class="pushed-note" id="lastUpdatedNote">Live payload — push to send to the overlay</p>
+        </section>
       </div>
-      <button class="action secondary" onclick="loadFromSignup('p1')">Load from Signups ▾</button>
-    </div>
 
-    <!-- Player 2 -->
-    <div class="card">
-      <h2>Player 2 (Right)</h2>
-      <label>Name / Tag</label>
-      <input type="text" id="p2Name" placeholder="Player 2">
-      <label>Character</label>
-      <input type="text" id="p2Char" placeholder="Character">
-      <label>Score</label>
-      <div class="score-controls">
-        <button class="score-btn minus" onclick="changeScore('p2', -1)">−</button>
-        <div class="score-display" id="p2ScoreDisp">0</div>
-        <button class="score-btn plus" onclick="changeScore('p2', 1)">+</button>
+      <div class="loy-foot">
+        LOY Software · <a href="https://www.lambofyeshu.life">lambofyeshu.life</a>
       </div>
-      <button class="action secondary" onclick="loadFromSignup('p2')">Load from Signups ▾</button>
-    </div>
-
-    <!-- Quick Actions + Signups -->
-    <div class="card">
-      <h2>Quick Actions</h2>
-      <button class="action" onclick="resetScores()">Reset Scores to 0</button>
-      <button class="action secondary" onclick="swapSides()">Swap Sides</button>
-      <button class="action secondary" onclick="pushFullUpdate()">Force Push All</button>
-      <h2 style="margin-top:1.5rem;">Registered Players</h2>
-      <div class="signups-list" id="signupsList">Loading...</div>
     </div>
   </div>
-
-  <div class="preview" id="preview">Waiting for state...</div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -228,6 +564,10 @@
     let signups = [];
 
     function $(id) { return document.getElementById(id); }
+
+    function escapeHtml(t) {
+      return (t || '').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+    }
 
     function updateFormFromState(state) {
       if (!state) return;
@@ -242,41 +582,80 @@
       $('p2Name').value = state.p2?.name || '';
       $('p2Char').value = state.p2?.character || '';
       $('p2ScoreDisp').textContent = state.p2?.score ?? 0;
-      $('lastUpdated').textContent = state.lastUpdated ? new Date(state.lastUpdated).toLocaleTimeString() : '';
+      const stamp = state.lastUpdated ? new Date(state.lastUpdated).toLocaleTimeString() : '';
+      $('lastUpdated').textContent = stamp;
+      $('lastUpdatedNote').textContent = stamp
+        ? ('Last push ' + stamp + ' · overlay synced')
+        : 'Live payload — push to send to the overlay';
       $('preview').textContent = JSON.stringify(state, null, 2);
+    }
+
+    function signupMeta(s) {
+      return [s.characterMain, s.platform, s.region].filter(Boolean).join(' · ');
+    }
+
+    function applySignup(side, s) {
+      $(side + 'Name').value = s.playerTag;
+      $(side + 'Char').value = s.characterMain || '';
+      closeMenus();
+      pushFullUpdate();
     }
 
     function renderSignups(list) {
       signups = list || [];
       const el = $('signupsList');
       if (!signups.length) {
-        el.innerHTML = '<div style="color:#666;padding:0.5rem;">No registrants yet</div>';
+        el.innerHTML = '<div class="roster-meta">No registrants yet</div>';
+        $('p1Menu').innerHTML = '<div class="menu-item">No registered players</div>';
+        $('p2Menu').innerHTML = '<div class="menu-item">No registered players</div>';
         return;
       }
-      el.innerHTML = signups.map(s => `
-        <div class="signup-item" title="Click to copy tag">
+      el.innerHTML = signups.map((s, idx) => `
+        <div class="roster-item">
           <div>
-            <div class="tag">${escapeHtml(s.playerTag)}</div>
-            <div class="meta">${escapeHtml(s.characterMain || '')} · ${escapeHtml(s.platform || '')} · ${escapeHtml(s.region || '')}</div>
+            <span class="roster-name">${escapeHtml(s.playerTag)}</span>
+            <span class="roster-meta">${escapeHtml(signupMeta(s))}</span>
+          </div>
+          <div class="roster-actions">
+            <button type="button" class="chip" data-idx="${idx}" data-side="p1">P1</button>
+            <button type="button" class="chip" data-idx="${idx}" data-side="p2">P2</button>
           </div>
         </div>
       `).join('');
-      el.querySelectorAll('.signup-item').forEach((item, idx) => {
-        item.onclick = () => {
-          const side = prompt('Load into which side? (1 or 2)', '1');
-          if (side === '1' || side === '2') {
-            const p = 'p' + side;
-            $(p + 'Name').value = signups[idx].playerTag;
-            $(p + 'Char').value = signups[idx].characterMain || '';
-            pushFullUpdate();
-          }
-        };
+      el.querySelectorAll('.chip').forEach((btn) => {
+        btn.onclick = () => applySignup(btn.dataset.side, signups[Number(btn.dataset.idx)]);
+      });
+
+      const menuHtml = signups.map((s, idx) => `
+        <button type="button" class="menu-item" data-idx="${idx}">
+          ${escapeHtml(s.playerTag)}
+          <span class="menu-meta">${escapeHtml(signupMeta(s))}</span>
+        </button>
+      `).join('');
+      ['p1', 'p2'].forEach((side) => {
+        const menu = $(side + 'Menu');
+        menu.innerHTML = menuHtml;
+        menu.querySelectorAll('.menu-item').forEach((item) => {
+          item.onclick = () => applySignup(side, signups[Number(item.dataset.idx)]);
+        });
       });
     }
 
-    function escapeHtml(t) {
-      return (t || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    function closeMenus() {
+      $('p1Menu').hidden = true;
+      $('p2Menu').hidden = true;
     }
+
+    function toggleSignupMenu(side) {
+      const menu = $(side + 'Menu');
+      const other = $(side === 'p1' ? 'p2Menu' : 'p1Menu');
+      other.hidden = true;
+      menu.hidden = !menu.hidden;
+    }
+
+    document.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('.load-wrap')) closeMenus();
+    });
 
     function getFormState() {
       return {
@@ -298,8 +677,7 @@
     }
 
     function pushFullUpdate() {
-      const payload = getFormState();
-      socket.emit('adminUpdateMatch', payload);
+      socket.emit('adminUpdateMatch', getFormState());
     }
 
     function changeScore(player, amount) {
@@ -324,18 +702,6 @@
       socket.emit('adminUpdateMatch', s);
     }
 
-    function loadFromSignup(side) {
-      if (!signups.length) { alert('No signups yet'); return; }
-      const names = signups.map((s,i) => `${i+1}. ${s.playerTag}`).join('\n');
-      const choice = prompt('Enter number of player to load:\n' + names);
-      const idx = parseInt(choice, 10) - 1;
-      if (idx >= 0 && idx < signups.length) {
-        $(side + 'Name').value = signups[idx].playerTag;
-        $(side + 'Char').value = signups[idx].characterMain || '';
-        pushFullUpdate();
-      }
-    }
-
     socket.on('connect', () => {
       $('connDot').classList.add('connected');
       $('connStatus').textContent = 'Connected';
@@ -348,24 +714,14 @@
       $('connStatus').textContent = 'Disconnected';
     });
 
-    socket.on('matchUpdate', (state) => {
-      updateFormFromState(state);
-    });
+    socket.on('matchUpdate', updateFormFromState);
+    socket.on('signupsUpdate', renderSignups);
 
-    socket.on('signupsUpdate', (list) => {
-      renderSignups(list);
-    });
-
-    document.querySelectorAll('input').forEach(inp => {
-      inp.addEventListener('keydown', e => {
+    document.querySelectorAll('input').forEach((inp) => {
+      inp.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') pushFullUpdate();
       });
     });
   </script>
-
-  <div style="margin-top:2rem;padding:1rem;text-align:center;color:#555;font-size:0.75rem;border-top:1px solid #222;">
-    LOY Software · <a href="https://www.lambofyeshu.life" style="color:#ff6b6b;">lambofyeshu.life</a>
-  </div>
-
 </body>
 </html>
