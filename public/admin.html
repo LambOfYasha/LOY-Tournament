@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FGC Tournament Admin | LOY Software</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0c0c12;
+      color: #e8e8e8;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+    h1 { color: #ff2a2a; margin-bottom: 0.5rem; font-size: 1.6rem; }
+    .subtitle { color: #888; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      max-width: 1100px;
+    }
+    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: #16161f;
+      border: 1px solid #2a2a3a;
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+    .card h2 {
+      font-size: 1rem;
+      color: #ff6b6b;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #2a2a3a;
+      padding-bottom: 0.5rem;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: #999;
+      margin: 0.75rem 0 0.3rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.55rem 0.7rem;
+      background: #0d0d14;
+      border: 1px solid #333;
+      border-radius: 5px;
+      color: #fff;
+      font-size: 0.95rem;
+    }
+    input:focus, select:focus { outline: none; border-color: #ff2a2a; }
+    .row { display: flex; gap: 0.75rem; align-items: flex-end; }
+    .row > * { flex: 1; }
+    .score-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    .score-btn {
+      width: 42px;
+      height: 42px;
+      font-size: 1.4rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #222;
+      color: #fff;
+    }
+    .score-btn.plus { background: #1a5c1a; }
+    .score-btn.minus { background: #5c1a1a; }
+    .score-display {
+      font-size: 1.8rem;
+      font-weight: 700;
+      min-width: 40px;
+      text-align: center;
+    }
+    button.action {
+      margin-top: 1rem;
+      padding: 0.65rem 1rem;
+      background: #ff2a2a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+    }
+    button.action:hover { background: #e02020; }
+    button.secondary {
+      background: #2a2a3a;
+      margin-top: 0.5rem;
+    }
+    button.secondary:hover { background: #3a3a4a; }
+    .signups-list {
+      max-height: 280px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+    }
+    .signup-item {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid #222;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .signup-item:hover { background: #1e1e28; }
+    .signup-item .tag { font-weight: 600; color: #fff; }
+    .signup-item .meta { color: #777; font-size: 0.8rem; }
+    .preview {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: #0a0a10;
+      border: 1px dashed #333;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+    }
+    .status-bar {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #555;
+    }
+    .dot.connected { background: #0f0; }
+  </style>
+</head>
+<body>
+  <h1>Tournament Control Panel</h1>
+  <div class="subtitle">Realtime updates push to Streamlabs overlay instantly</div>
+
+  <div class="status-bar">
+    <div class="dot" id="connDot"></div>
+    <span id="connStatus">Connecting...</span>
+    <span style="margin-left:auto; color:#666;" id="lastUpdated"></span>
+  </div>
+
+  <div class="grid">
+    <!-- Match Info -->
+    <div class="card">
+      <h2>Match Info</h2>
+      <label>Tournament Name</label>
+      <input type="text" id="tournamentName" placeholder="Tekken 8 Open">
+      <label>Round / Phase</label>
+      <input type="text" id="round" placeholder="Winners Finals">
+      <div class="row">
+        <div>
+          <label>Best Of</label>
+          <select id="bestOf">
+            <option value="1">1</option>
+            <option value="3" selected>3</option>
+            <option value="5">5</option>
+            <option value="7">7</option>
+          </select>
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="status">
+            <option value="waiting">Waiting</option>
+            <option value="live">Live</option>
+            <option value="finished">Finished</option>
+          </select>
+        </div>
+      </div>
+      <button class="action" onclick="pushFullUpdate()">Push Match Info</button>
+    </div>
+
+    <!-- Player 1 -->
+    <div class="card">
+      <h2>Player 1 (Left)</h2>
+      <label>Name / Tag</label>
+      <input type="text" id="p1Name" placeholder="Player 1">
+      <label>Character</label>
+      <input type="text" id="p1Char" placeholder="Jin / Kazuya / etc.">
+      <label>Score</label>
+      <div class="score-controls">
+        <button class="score-btn minus" onclick="changeScore('p1', -1)">−</button>
+        <div class="score-display" id="p1ScoreDisp">0</div>
+        <button class="score-btn plus" onclick="changeScore('p1', 1)">+</button>
+      </div>
+      <button class="action secondary" onclick="loadFromSignup('p1')">Load from Signups ▾</button>
+    </div>
+
+    <!-- Player 2 -->
+    <div class="card">
+      <h2>Player 2 (Right)</h2>
+      <label>Name / Tag</label>
+      <input type="text" id="p2Name" placeholder="Player 2">
+      <label>Character</label>
+      <input type="text" id="p2Char" placeholder="Character">
+      <label>Score</label>
+      <div class="score-controls">
+        <button class="score-btn minus" onclick="changeScore('p2', -1)">−</button>
+        <div class="score-display" id="p2ScoreDisp">0</div>
+        <button class="score-btn plus" onclick="changeScore('p2', 1)">+</button>
+      </div>
+      <button class="action secondary" onclick="loadFromSignup('p2')">Load from Signups ▾</button>
+    </div>
+
+    <!-- Quick Actions + Signups -->
+    <div class="card">
+      <h2>Quick Actions</h2>
+      <button class="action" onclick="resetScores()">Reset Scores to 0</button>
+      <button class="action secondary" onclick="swapSides()">Swap Sides</button>
+      <button class="action secondary" onclick="pushFullUpdate()">Force Push All</button>
+      <h2 style="margin-top:1.5rem;">Registered Players</h2>
+      <div class="signups-list" id="signupsList">Loading...</div>
+    </div>
+  </div>
+
+  <div class="preview" id="preview">Waiting for state...</div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let currentState = null;
+    let signups = [];
+
+    function $(id) { return document.getElementById(id); }
+
+    function updateFormFromState(state) {
+      if (!state) return;
+      currentState = state;
+      $('tournamentName').value = state.tournamentName || '';
+      $('round').value = state.round || '';
+      $('bestOf').value = state.bestOf || 3;
+      $('status').value = state.status || 'waiting';
+      $('p1Name').value = state.p1?.name || '';
+      $('p1Char').value = state.p1?.character || '';
+      $('p1ScoreDisp').textContent = state.p1?.score ?? 0;
+      $('p2Name').value = state.p2?.name || '';
+      $('p2Char').value = state.p2?.character || '';
+      $('p2ScoreDisp').textContent = state.p2?.score ?? 0;
+      $('lastUpdated').textContent = state.lastUpdated ? new Date(state.lastUpdated).toLocaleTimeString() : '';
+      $('preview').textContent = JSON.stringify(state, null, 2);
+    }
+
+    function renderSignups(list) {
+      signups = list || [];
+      const el = $('signupsList');
+      if (!signups.length) {
+        el.innerHTML = '<div style="color:#666;padding:0.5rem;">No registrants yet</div>';
+        return;
+      }
+      el.innerHTML = signups.map(s => `
+        <div class="signup-item" title="Click to copy tag">
+          <div>
+            <div class="tag">${escapeHtml(s.playerTag)}</div>
+            <div class="meta">${escapeHtml(s.characterMain || '')} · ${escapeHtml(s.platform || '')} · ${escapeHtml(s.region || '')}</div>
+          </div>
+        </div>
+      `).join('');
+      el.querySelectorAll('.signup-item').forEach((item, idx) => {
+        item.onclick = () => {
+          const side = prompt('Load into which side? (1 or 2)', '1');
+          if (side === '1' || side === '2') {
+            const p = 'p' + side;
+            $(p + 'Name').value = signups[idx].playerTag;
+            $(p + 'Char').value = signups[idx].characterMain || '';
+            pushFullUpdate();
+          }
+        };
+      });
+    }
+
+    function escapeHtml(t) {
+      return (t || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function getFormState() {
+      return {
+        tournamentName: $('tournamentName').value,
+        round: $('round').value,
+        bestOf: Number($('bestOf').value) || 3,
+        status: $('status').value,
+        p1: {
+          name: $('p1Name').value,
+          character: $('p1Char').value,
+          score: Number($('p1ScoreDisp').textContent) || 0
+        },
+        p2: {
+          name: $('p2Name').value,
+          character: $('p2Char').value,
+          score: Number($('p2ScoreDisp').textContent) || 0
+        }
+      };
+    }
+
+    function pushFullUpdate() {
+      const payload = getFormState();
+      socket.emit('adminUpdateMatch', payload);
+    }
+
+    function changeScore(player, amount) {
+      socket.emit('incrementScore', { player, amount });
+    }
+
+    function resetScores() {
+      socket.emit('resetScores');
+    }
+
+    function swapSides() {
+      const s = getFormState();
+      const temp = s.p1;
+      s.p1 = s.p2;
+      s.p2 = temp;
+      $('p1Name').value = s.p1.name;
+      $('p1Char').value = s.p1.character;
+      $('p1ScoreDisp').textContent = s.p1.score;
+      $('p2Name').value = s.p2.name;
+      $('p2Char').value = s.p2.character;
+      $('p2ScoreDisp').textContent = s.p2.score;
+      socket.emit('adminUpdateMatch', s);
+    }
+
+    function loadFromSignup(side) {
+      if (!signups.length) { alert('No signups yet'); return; }
+      const names = signups.map((s,i) => `${i+1}. ${s.playerTag}`).join('\n');
+      const choice = prompt('Enter number of player to load:\n' + names);
+      const idx = parseInt(choice, 10) - 1;
+      if (idx >= 0 && idx < signups.length) {
+        $(side + 'Name').value = signups[idx].playerTag;
+        $(side + 'Char').value = signups[idx].characterMain || '';
+        pushFullUpdate();
+      }
+    }
+
+    socket.on('connect', () => {
+      $('connDot').classList.add('connected');
+      $('connStatus').textContent = 'Connected';
+      socket.emit('requestState');
+      socket.emit('adminGetSignups');
+    });
+
+    socket.on('disconnect', () => {
+      $('connDot').classList.remove('connected');
+      $('connStatus').textContent = 'Disconnected';
+    });
+
+    socket.on('matchUpdate', (state) => {
+      updateFormFromState(state);
+    });
+
+    socket.on('signupsUpdate', (list) => {
+      renderSignups(list);
+    });
+
+    document.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') pushFullUpdate();
+      });
+    });
+  </script>
+
+  <div style="margin-top:2rem;padding:1rem;text-align:center;color:#555;font-size:0.75rem;border-top:1px solid #222;">
+    LOY Software · <a href="https://www.lambofyeshu.life" style="color:#ff6b6b;">lambofyeshu.life</a>
+  </div>
+
+</body>
+</html>
