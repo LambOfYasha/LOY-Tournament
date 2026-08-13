@@ -3,369 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FGC Tournament Admin | LOY Software</title>
+  <title>Lambs_Shadow Tournament Admin | LOY Software</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: #0c0c12;
-      color: #e8e8e8;
-      min-height: 100vh;
-      padding: 1.5rem;
-    }
-    h1 { color: #ff2a2a; margin-bottom: 0.5rem; font-size: 1.6rem; }
-    .subtitle { color: #888; margin-bottom: 1.5rem; font-size: 0.9rem; }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-      max-width: 1100px;
-    }
-    @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
-    .card {
-      background: #16161f;
-      border: 1px solid #2a2a3a;
-      border-radius: 10px;
-      padding: 1.25rem;
-    }
-    .card h2 {
-      font-size: 1rem;
-      color: #ff6b6b;
-      margin-bottom: 1rem;
-      border-bottom: 1px solid #2a2a3a;
-      padding-bottom: 0.5rem;
-    }
-    label {
-      display: block;
-      font-size: 0.8rem;
-      color: #999;
-      margin: 0.75rem 0 0.3rem;
-    }
-    input, select {
-      width: 100%;
-      padding: 0.55rem 0.7rem;
-      background: #0d0d14;
-      border: 1px solid #333;
-      border-radius: 5px;
-      color: #fff;
-      font-size: 0.95rem;
-    }
-    input:focus, select:focus { outline: none; border-color: #ff2a2a; }
-    .row { display: flex; gap: 0.75rem; align-items: flex-end; }
-    .row > * { flex: 1; }
-    .score-controls {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      margin-top: 0.5rem;
-    }
-    .score-btn {
-      width: 42px;
-      height: 42px;
-      font-size: 1.4rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #222;
-      color: #fff;
-    }
-    .score-btn.plus { background: #1a5c1a; }
-    .score-btn.minus { background: #5c1a1a; }
-    .score-display {
-      font-size: 1.8rem;
-      font-weight: 700;
-      min-width: 40px;
-      text-align: center;
-    }
-    button.action {
-      margin-top: 1rem;
-      padding: 0.65rem 1rem;
-      background: #ff2a2a;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      width: 100%;
-    }
-    button.action:hover { background: #e02020; }
-    button.secondary {
-      background: #2a2a3a;
-      margin-top: 0.5rem;
-    }
-    button.secondary:hover { background: #3a3a4a; }
-    .signups-list {
-      max-height: 280px;
-      overflow-y: auto;
-      font-size: 0.85rem;
-    }
-    .signup-item {
-      padding: 0.5rem 0.6rem;
-      border-bottom: 1px solid #222;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-    }
-    .signup-item:hover { background: #1e1e28; }
-    .signup-item .tag { font-weight: 600; color: #fff; }
-    .signup-item .meta { color: #777; font-size: 0.8rem; }
-    .preview {
-      margin-top: 1.5rem;
-      padding: 1rem;
-      background: #0a0a10;
-      border: 1px dashed #333;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 0.85rem;
-      white-space: pre-wrap;
-    }
-    .status-bar {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      margin-bottom: 1rem;
-      font-size: 0.9rem;
-    }
-    .dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: #555;
-    }
-    .dot.connected { background: #0f0; }
+    :root{--bg:#09080d;--panel:#15111b;--panel2:#1d1522;--pink:#ff5ca8;--rose:#ff9dca;--plum:#9b5de5;--gold:#e7b95a;--gold2:#ffe6a6;--white:#fff8fc;--muted:#bfaeb9;--line:#3d2c3c;--good:#72e6a6;--bad:#ff7f8f}
+    *{box-sizing:border-box;margin:0;padding:0}body{font-family:"Segoe UI",system-ui,sans-serif;background:radial-gradient(circle at 10% 0,rgba(255,92,168,.15),transparent 25%),radial-gradient(circle at 90% 0,rgba(155,93,229,.12),transparent 28%),linear-gradient(180deg,#0c0910,#08070b 55%,#0b0810);color:var(--white);min-height:100vh;padding:1.5rem}.shell{max-width:1180px;margin:0 auto}.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(20,15,25,.98),rgba(10,9,14,.98));border:1px solid var(--gold);border-radius:20px;padding:1.35rem 1.5rem 1.25rem;margin-bottom:1rem;box-shadow:0 18px 45px rgba(0,0,0,.35),inset 0 0 40px rgba(255,92,168,.035)}.hero:before{content:"";position:absolute;inset:auto -50px -54px 40%;height:140px;background:linear-gradient(8deg,transparent 25%,rgba(255,92,168,.22) 26% 33%,transparent 34% 44%,rgba(255,157,202,.12) 45% 49%,transparent 50%);transform:rotate(-3deg)}.eyebrow{color:var(--gold2);font-weight:900;text-transform:uppercase;letter-spacing:.2em;font-size:.72rem}.hero h1{margin-top:.25rem;font-size:clamp(1.8rem,4vw,2.8rem);font-style:italic;font-weight:1000;text-transform:uppercase;letter-spacing:.02em;text-shadow:0 2px 0 #000,0 0 20px rgba(255,92,168,.35)}.hero h1 span{color:var(--pink)}.subtitle{color:var(--muted);margin-top:.35rem;font-size:.92rem}.motto{margin-top:.65rem;color:var(--rose);font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.status-bar{display:flex;gap:.7rem;align-items:center;margin:0 0 1.1rem;padding:.75rem 1rem;background:rgba(14,11,18,.84);border:1px solid var(--line);border-radius:14px;font-size:.88rem}.dot{width:10px;height:10px;border-radius:50%;background:#5a4a56;box-shadow:0 0 0 4px rgba(255,255,255,.02)}.dot.connected{background:var(--good);box-shadow:0 0 12px rgba(114,230,166,.8)}#lastUpdated{margin-left:auto;color:#7e6c79}.grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}.card{position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(26,20,31,.96),rgba(14,12,18,.96));border:1px solid var(--line);border-radius:16px;padding:1.15rem;box-shadow:0 14px 30px rgba(0,0,0,.24)}.card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--pink),var(--gold),var(--plum))}.card h2{font-size:.95rem;color:var(--white);margin-bottom:.95rem;padding-bottom:.55rem;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.12em;font-weight:900}.card h2:before{content:"🐾";font-size:.85rem;margin-right:.45rem}label{display:block;font-size:.76rem;color:var(--muted);margin:.72rem 0 .3rem;text-transform:uppercase;letter-spacing:.08em;font-weight:800}input,select{width:100%;padding:.68rem .78rem;background:#0d0a11;border:1px solid #493449;border-radius:9px;color:var(--white);font-size:.95rem;transition:.15s}input:focus,select:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,92,168,.12)}.row{display:flex;gap:.75rem;align-items:flex-end}.row>*{flex:1}.score-controls{display:flex;gap:.6rem;align-items:center;margin-top:.45rem}.score-btn{width:46px;height:46px;font-size:1.5rem;font-weight:1000;border:1px solid var(--line);border-radius:10px;cursor:pointer;color:var(--white);background:#211722;transition:.15s}.score-btn:hover{transform:translateY(-1px);border-color:var(--gold)}.score-btn.plus{background:linear-gradient(180deg,#264f3a,#183426)}.score-btn.minus{background:linear-gradient(180deg,#5a2631,#37171e)}.score-display{font-size:2rem;font-weight:1000;min-width:54px;text-align:center;color:var(--rose);text-shadow:0 0 12px rgba(255,92,168,.35)}button.action{margin-top:1rem;padding:.76rem 1rem;background:linear-gradient(90deg,#d73e83,#ff5ca8);color:white;border:1px solid #ffb2d5;border-radius:10px;font-weight:900;cursor:pointer;width:100%;text-transform:uppercase;letter-spacing:.06em;box-shadow:0 8px 20px rgba(255,92,168,.16);transition:.15s}button.action:hover{filter:brightness(1.08);transform:translateY(-1px)}button.secondary{background:linear-gradient(90deg,#29202f,#211924);border-color:#4e3d50;color:#f1e6ed;margin-top:.5rem}.signups-list{max-height:300px;overflow-y:auto;font-size:.85rem;border:1px solid #332634;border-radius:10px;background:#0d0a10}.signup-item{padding:.65rem .75rem;border-bottom:1px solid #281e29;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:.12s}.signup-item:hover{background:rgba(255,92,168,.08)}.signup-item .tag{font-weight:800;color:var(--white)}.signup-item .meta{color:#887687;font-size:.78rem;margin-top:.1rem}.preview{margin-top:1.2rem;padding:1rem;background:#09070c;border:1px dashed #5b3d55;border-radius:12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.78rem;color:#cdbdca;white-space:pre-wrap;max-height:260px;overflow:auto}.footer{margin-top:1.5rem;padding:1rem;text-align:center;color:#796a75;font-size:.75rem;border-top:1px solid #251b27}.footer a{color:var(--rose);text-decoration:none}@media(max-width:800px){body{padding:1rem}.grid{grid-template-columns:1fr}.hero{padding:1.1rem}.row{flex-direction:column;gap:0;align-items:stretch}}
   </style>
 </head>
 <body>
-  <h1>Tournament Control Panel</h1>
-  <div class="subtitle">Realtime updates push to Streamlabs overlay instantly</div>
+  <main class="shell">
+    <header class="hero">
+      <div class="eyebrow">ttv lambs_shadow • tournament operations</div>
+      <h1>Ling Panda <span>Maiden</span> Control</h1>
+      <div class="subtitle">Realtime match administration for the Lambs_Shadow fighting-game stream.</div>
+      <div class="motto">Faith • Focus • Fight</div>
+    </header>
 
-  <div class="status-bar">
-    <div class="dot" id="connDot"></div>
-    <span id="connStatus">Connecting...</span>
-    <span style="margin-left:auto; color:#666;" id="lastUpdated"></span>
-  </div>
+    <div class="status-bar">
+      <div class="dot" id="connDot"></div>
+      <span id="connStatus">Connecting...</span>
+      <span id="lastUpdated"></span>
+    </div>
 
-  <div class="grid">
-    <!-- Match Info -->
-    <div class="card">
-      <h2>Match Info</h2>
-      <label>Tournament Name</label>
-      <input type="text" id="tournamentName" placeholder="Tekken 8 Open">
-      <label>Round / Phase</label>
-      <input type="text" id="round" placeholder="Winners Finals">
-      <div class="row">
-        <div>
-          <label>Best Of</label>
-          <select id="bestOf">
-            <option value="1">1</option>
-            <option value="3" selected>3</option>
-            <option value="5">5</option>
-            <option value="7">7</option>
-          </select>
-        </div>
-        <div>
-          <label>Status</label>
-          <select id="status">
-            <option value="waiting">Waiting</option>
-            <option value="live">Live</option>
-            <option value="finished">Finished</option>
-          </select>
-        </div>
+    <section class="grid">
+      <div class="card">
+        <h2>Match Info</h2>
+        <label>Tournament Name</label><input type="text" id="tournamentName" placeholder="Tekken 8 Open">
+        <label>Round / Phase</label><input type="text" id="round" placeholder="Winners Finals">
+        <div class="row"><div><label>Best Of</label><select id="bestOf"><option value="1">1</option><option value="3" selected>3</option><option value="5">5</option><option value="7">7</option></select></div><div><label>Status</label><select id="status"><option value="waiting">Waiting</option><option value="live">Live</option><option value="finished">Finished</option></select></div></div>
+        <button class="action" onclick="pushFullUpdate()">Push Match Info</button>
       </div>
-      <button class="action" onclick="pushFullUpdate()">Push Match Info</button>
-    </div>
 
-    <!-- Player 1 -->
-    <div class="card">
-      <h2>Player 1 (Left)</h2>
-      <label>Name / Tag</label>
-      <input type="text" id="p1Name" placeholder="Player 1">
-      <label>Character</label>
-      <input type="text" id="p1Char" placeholder="Jin / Kazuya / etc.">
-      <label>Score</label>
-      <div class="score-controls">
-        <button class="score-btn minus" onclick="changeScore('p1', -1)">−</button>
-        <div class="score-display" id="p1ScoreDisp">0</div>
-        <button class="score-btn plus" onclick="changeScore('p1', 1)">+</button>
+      <div class="card">
+        <h2>Player 1 • Left</h2>
+        <label>Name / Tag</label><input type="text" id="p1Name" placeholder="Player 1">
+        <label>Character</label><input type="text" id="p1Char" placeholder="Ling Xiaoyu / Jin / etc.">
+        <label>Score</label><div class="score-controls"><button class="score-btn minus" onclick="changeScore('p1', -1)">−</button><div class="score-display" id="p1ScoreDisp">0</div><button class="score-btn plus" onclick="changeScore('p1', 1)">+</button></div>
+        <button class="action secondary" onclick="loadFromSignup('p1')">Load from Signups ▾</button>
       </div>
-      <button class="action secondary" onclick="loadFromSignup('p1')">Load from Signups ▾</button>
-    </div>
 
-    <!-- Player 2 -->
-    <div class="card">
-      <h2>Player 2 (Right)</h2>
-      <label>Name / Tag</label>
-      <input type="text" id="p2Name" placeholder="Player 2">
-      <label>Character</label>
-      <input type="text" id="p2Char" placeholder="Character">
-      <label>Score</label>
-      <div class="score-controls">
-        <button class="score-btn minus" onclick="changeScore('p2', -1)">−</button>
-        <div class="score-display" id="p2ScoreDisp">0</div>
-        <button class="score-btn plus" onclick="changeScore('p2', 1)">+</button>
+      <div class="card">
+        <h2>Player 2 • Right</h2>
+        <label>Name / Tag</label><input type="text" id="p2Name" placeholder="Player 2">
+        <label>Character</label><input type="text" id="p2Char" placeholder="Character">
+        <label>Score</label><div class="score-controls"><button class="score-btn minus" onclick="changeScore('p2', -1)">−</button><div class="score-display" id="p2ScoreDisp">0</div><button class="score-btn plus" onclick="changeScore('p2', 1)">+</button></div>
+        <button class="action secondary" onclick="loadFromSignup('p2')">Load from Signups ▾</button>
       </div>
-      <button class="action secondary" onclick="loadFromSignup('p2')">Load from Signups ▾</button>
-    </div>
 
-    <!-- Quick Actions + Signups -->
-    <div class="card">
-      <h2>Quick Actions</h2>
-      <button class="action" onclick="resetScores()">Reset Scores to 0</button>
-      <button class="action secondary" onclick="swapSides()">Swap Sides</button>
-      <button class="action secondary" onclick="pushFullUpdate()">Force Push All</button>
-      <h2 style="margin-top:1.5rem;">Registered Players</h2>
-      <div class="signups-list" id="signupsList">Loading...</div>
-    </div>
-  </div>
+      <div class="card">
+        <h2>Quick Actions</h2>
+        <button class="action" onclick="resetScores()">Reset Scores to 0</button>
+        <button class="action secondary" onclick="swapSides()">Swap Sides</button>
+        <button class="action secondary" onclick="pushFullUpdate()">Force Push All</button>
+        <h2 style="margin-top:1.35rem">Registered Players</h2>
+        <div class="signups-list" id="signupsList">Loading...</div>
+      </div>
+    </section>
 
-  <div class="preview" id="preview">Waiting for state...</div>
+    <div class="preview" id="preview">Waiting for state...</div>
+    <footer class="footer">LOY Software · <a href="https://www.lambofyeshu.life">lambofyeshu.life</a> · Lambs_Shadow Tournament System</footer>
+  </main>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io();
-    let currentState = null;
-    let signups = [];
-
-    function $(id) { return document.getElementById(id); }
-
-    function updateFormFromState(state) {
-      if (!state) return;
-      currentState = state;
-      $('tournamentName').value = state.tournamentName || '';
-      $('round').value = state.round || '';
-      $('bestOf').value = state.bestOf || 3;
-      $('status').value = state.status || 'waiting';
-      $('p1Name').value = state.p1?.name || '';
-      $('p1Char').value = state.p1?.character || '';
-      $('p1ScoreDisp').textContent = state.p1?.score ?? 0;
-      $('p2Name').value = state.p2?.name || '';
-      $('p2Char').value = state.p2?.character || '';
-      $('p2ScoreDisp').textContent = state.p2?.score ?? 0;
-      $('lastUpdated').textContent = state.lastUpdated ? new Date(state.lastUpdated).toLocaleTimeString() : '';
-      $('preview').textContent = JSON.stringify(state, null, 2);
-    }
-
-    function renderSignups(list) {
-      signups = list || [];
-      const el = $('signupsList');
-      if (!signups.length) {
-        el.innerHTML = '<div style="color:#666;padding:0.5rem;">No registrants yet</div>';
-        return;
-      }
-      el.innerHTML = signups.map(s => `
-        <div class="signup-item" title="Click to copy tag">
-          <div>
-            <div class="tag">${escapeHtml(s.playerTag)}</div>
-            <div class="meta">${escapeHtml(s.characterMain || '')} · ${escapeHtml(s.platform || '')} · ${escapeHtml(s.region || '')}</div>
-          </div>
-        </div>
-      `).join('');
-      el.querySelectorAll('.signup-item').forEach((item, idx) => {
-        item.onclick = () => {
-          const side = prompt('Load into which side? (1 or 2)', '1');
-          if (side === '1' || side === '2') {
-            const p = 'p' + side;
-            $(p + 'Name').value = signups[idx].playerTag;
-            $(p + 'Char').value = signups[idx].characterMain || '';
-            pushFullUpdate();
-          }
-        };
-      });
-    }
-
-    function escapeHtml(t) {
-      return (t || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-
-    function getFormState() {
-      return {
-        tournamentName: $('tournamentName').value,
-        round: $('round').value,
-        bestOf: Number($('bestOf').value) || 3,
-        status: $('status').value,
-        p1: {
-          name: $('p1Name').value,
-          character: $('p1Char').value,
-          score: Number($('p1ScoreDisp').textContent) || 0
-        },
-        p2: {
-          name: $('p2Name').value,
-          character: $('p2Char').value,
-          score: Number($('p2ScoreDisp').textContent) || 0
-        }
-      };
-    }
-
-    function pushFullUpdate() {
-      const payload = getFormState();
-      socket.emit('adminUpdateMatch', payload);
-    }
-
-    function changeScore(player, amount) {
-      socket.emit('incrementScore', { player, amount });
-    }
-
-    function resetScores() {
-      socket.emit('resetScores');
-    }
-
-    function swapSides() {
-      const s = getFormState();
-      const temp = s.p1;
-      s.p1 = s.p2;
-      s.p2 = temp;
-      $('p1Name').value = s.p1.name;
-      $('p1Char').value = s.p1.character;
-      $('p1ScoreDisp').textContent = s.p1.score;
-      $('p2Name').value = s.p2.name;
-      $('p2Char').value = s.p2.character;
-      $('p2ScoreDisp').textContent = s.p2.score;
-      socket.emit('adminUpdateMatch', s);
-    }
-
-    function loadFromSignup(side) {
-      if (!signups.length) { alert('No signups yet'); return; }
-      const names = signups.map((s,i) => `${i+1}. ${s.playerTag}`).join('\n');
-      const choice = prompt('Enter number of player to load:\n' + names);
-      const idx = parseInt(choice, 10) - 1;
-      if (idx >= 0 && idx < signups.length) {
-        $(side + 'Name').value = signups[idx].playerTag;
-        $(side + 'Char').value = signups[idx].characterMain || '';
-        pushFullUpdate();
-      }
-    }
-
-    socket.on('connect', () => {
-      $('connDot').classList.add('connected');
-      $('connStatus').textContent = 'Connected';
-      socket.emit('requestState');
-      socket.emit('adminGetSignups');
-    });
-
-    socket.on('disconnect', () => {
-      $('connDot').classList.remove('connected');
-      $('connStatus').textContent = 'Disconnected';
-    });
-
-    socket.on('matchUpdate', (state) => {
-      updateFormFromState(state);
-    });
-
-    socket.on('signupsUpdate', (list) => {
-      renderSignups(list);
-    });
-
-    document.querySelectorAll('input').forEach(inp => {
-      inp.addEventListener('keydown', e => {
-        if (e.key === 'Enter') pushFullUpdate();
-      });
-    });
+    const socket=io();let currentState=null;let signups=[];function $(id){return document.getElementById(id)}
+    function updateFormFromState(state){if(!state)return;currentState=state;$('tournamentName').value=state.tournamentName||'';$('round').value=state.round||'';$('bestOf').value=state.bestOf||3;$('status').value=state.status||'waiting';$('p1Name').value=state.p1?.name||'';$('p1Char').value=state.p1?.character||'';$('p1ScoreDisp').textContent=state.p1?.score??0;$('p2Name').value=state.p2?.name||'';$('p2Char').value=state.p2?.character||'';$('p2ScoreDisp').textContent=state.p2?.score??0;$('lastUpdated').textContent=state.lastUpdated?new Date(state.lastUpdated).toLocaleTimeString():'';$('preview').textContent=JSON.stringify(state,null,2)}
+    function renderSignups(list){signups=list||[];const el=$('signupsList');if(!signups.length){el.innerHTML='<div style="color:#796a75;padding:.7rem">No registrants yet</div>';return}el.innerHTML=signups.map(s=>`<div class="signup-item" title="Click to load player"><div><div class="tag">${escapeHtml(s.playerTag)}</div><div class="meta">${escapeHtml(s.characterMain||'')} · ${escapeHtml(s.platform||'')} · ${escapeHtml(s.region||'')}</div></div></div>`).join('');el.querySelectorAll('.signup-item').forEach((item,idx)=>{item.onclick=()=>{const side=prompt('Load into which side? (1 or 2)','1');if(side==='1'||side==='2'){const p='p'+side;$(p+'Name').value=signups[idx].playerTag;$(p+'Char').value=signups[idx].characterMain||'';pushFullUpdate()}}})}
+    function escapeHtml(t){return(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+    function getFormState(){return{tournamentName:$('tournamentName').value,round:$('round').value,bestOf:Number($('bestOf').value)||3,status:$('status').value,p1:{name:$('p1Name').value,character:$('p1Char').value,score:Number($('p1ScoreDisp').textContent)||0},p2:{name:$('p2Name').value,character:$('p2Char').value,score:Number($('p2ScoreDisp').textContent)||0}}}
+    function pushFullUpdate(){socket.emit('adminUpdateMatch',getFormState())}function changeScore(player,amount){socket.emit('incrementScore',{player,amount})}function resetScores(){socket.emit('resetScores')}
+    function swapSides(){const s=getFormState(),temp=s.p1;s.p1=s.p2;s.p2=temp;$('p1Name').value=s.p1.name;$('p1Char').value=s.p1.character;$('p1ScoreDisp').textContent=s.p1.score;$('p2Name').value=s.p2.name;$('p2Char').value=s.p2.character;$('p2ScoreDisp').textContent=s.p2.score;socket.emit('adminUpdateMatch',s)}
+    function loadFromSignup(side){if(!signups.length){alert('No signups yet');return}const names=signups.map((s,i)=>`${i+1}. ${s.playerTag}`).join('\n'),choice=prompt('Enter number of player to load:\n'+names),idx=parseInt(choice,10)-1;if(idx>=0&&idx<signups.length){$(side+'Name').value=signups[idx].playerTag;$(side+'Char').value=signups[idx].characterMain||'';pushFullUpdate()}}
+    socket.on('connect',()=>{$('connDot').classList.add('connected');$('connStatus').textContent='Connected';socket.emit('requestState');socket.emit('adminGetSignups')});socket.on('disconnect',()=>{$('connDot').classList.remove('connected');$('connStatus').textContent='Disconnected'});socket.on('matchUpdate',updateFormFromState);socket.on('signupsUpdate',renderSignups);document.querySelectorAll('input').forEach(inp=>inp.addEventListener('keydown',e=>{if(e.key==='Enter')pushFullUpdate()}));
   </script>
-
-  <div style="margin-top:2rem;padding:1rem;text-align:center;color:#555;font-size:0.75rem;border-top:1px solid #222;">
-    LOY Software · <a href="https://www.lambofyeshu.life" style="color:#ff6b6b;">lambofyeshu.life</a>
-  </div>
-
 </body>
 </html>
