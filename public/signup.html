@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tekken 8 Tournament Signup | LOY Software</title>
+  <style>
+    /* Minimal functional styles - design later */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 520px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.25rem;
+      color: #ff2a2a;
+      text-align: center;
+    }
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+    }
+    .card {
+      background: #14141c;
+      border: 1px solid #2a2a3a;
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-bottom: 0.35rem;
+      margin-top: 1rem;
+    }
+    label:first-of-type { margin-top: 0; }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      background: #0d0d14;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 1rem;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #ff2a2a;
+    }
+    button {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.85rem;
+      background: #ff2a2a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #e02020; }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .msg {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      text-align: center;
+      display: none;
+    }
+    .msg.success {
+      background: #0d2a1a;
+      border: 1px solid #1a5c3a;
+      color: #4ade80;
+      display: block;
+    }
+    .msg.error {
+      background: #2a0d0d;
+      border: 1px solid #5c1a1a;
+      color: #f87171;
+      display: block;
+    }
+    .registrants {
+      margin-top: 0.5rem;
+    }
+    .registrants h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      color: #ccc;
+    }
+    .count {
+      color: #ff2a2a;
+      font-weight: 600;
+    }
+    ul {
+      list-style: none;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+    li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #222;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .tag { color: #fff; font-weight: 500; }
+    .meta { color: #777; font-size: 0.8rem; }
+    .event-info {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding: 0.75rem;
+      background: #1a1a28;
+      border-radius: 8px;
+      border: 1px solid #2a2a40;
+    }
+    .event-info strong { color: #ff2a2a; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>TEKKEN 8</h1>
+    <p class="subtitle">FGC Tournament Registration</p>
+
+    <div class="event-info" id="eventInfo">
+      Loading event details...
+    </div>
+
+    <div class="card">
+      <form id="signupForm">
+        <label for="playerTag">Player Tag / GamerTag *</label>
+        <input type="text" id="playerTag" name="playerTag" required maxlength="32" placeholder="Your FGC tag">
+
+        <label for="discord">Discord</label>
+        <input type="text" id="discord" name="discord" maxlength="40" placeholder="user#0000 or @username">
+
+        <label for="region">Region</label>
+        <input type="text" id="region" name="region" maxlength="30" placeholder="NA East, EU, Asia, etc.">
+
+        <label for="characterMain">Main Character(s)</label>
+        <input type="text" id="characterMain" name="characterMain" maxlength="50" placeholder="Jin, Kazuya, Nina...">
+
+        <label for="platform">Platform</label>
+        <select id="platform" name="platform">
+          <option value="PC">PC (Steam)</option>
+          <option value="PS5">PlayStation 5</option>
+          <option value="Xbox">Xbox Series</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label for="notes">Notes (optional)</label>
+        <textarea id="notes" name="notes" rows="2" maxlength="120" placeholder="Any extra info..."></textarea>
+
+        <button type="submit" id="submitBtn">Register for Tournament</button>
+      </form>
+      <div id="message" class="msg"></div>
+    </div>
+
+    <div class="card registrants">
+      <h2>Registered Players <span class="count" id="regCount">(0)</span></h2>
+      <ul id="regList">
+        <li class="meta">No registrations yet.</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer style="margin-top:2rem;text-align:center;color:#555;font-size:0.8rem;">
+    Hosted by <a href="https://www.lambofyeshu.life" style="color:#ff2a2a;text-decoration:none;">LOY Software</a> · lambofyeshu.life
+  </footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const form = document.getElementById('signupForm');
+    const msgEl = document.getElementById('message');
+    const submitBtn = document.getElementById('submitBtn');
+    const regList = document.getElementById('regList');
+    const regCount = document.getElementById('regCount');
+    const eventInfo = document.getElementById('eventInfo');
+
+    // Default event info (will be overwritten by API if available)
+    let currentEvent = {
+      name: "Tekken 8 Weekly",
+      date: "TBD",
+      game: "Tekken 8"
+    };
+
+    function showMessage(text, type) {
+      msgEl.textContent = text;
+      msgEl.className = 'msg ' + type;
+      if (type === 'success') {
+        setTimeout(() => { msgEl.className = 'msg'; }, 4000);
+      }
+    }
+
+    function renderSignups(signups) {
+      regCount.textContent = `(${signups.length})`;
+      if (!signups || signups.length === 0) {
+        regList.innerHTML = '<li class="meta">No registrations yet.</li>';
+        return;
+      }
+      regList.innerHTML = signups.map(s => `
+        <li>
+          <span class="tag">${escapeHtml(s.playerTag)}</span>
+          <span class="meta">${escapeHtml(s.characterMain || '')} ${s.platform ? '• ' + s.platform : ''}</span>
+        </li>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function loadEventAndSignups() {
+      try {
+        // Try to get current state for tournament name
+        const stateRes = await fetch('/api/state');
+        if (stateRes.ok) {
+          const state = await stateRes.json();
+          if (state.tournamentName) {
+            currentEvent.name = state.tournamentName;
+          }
+        }
+      } catch (e) {}
+
+      eventInfo.innerHTML = `<strong>${escapeHtml(currentEvent.name)}</strong><br>Game: Tekken 8 &nbsp;•&nbsp; Date: ${escapeHtml(currentEvent.date)}`;
+
+      try {
+        const res = await fetch('/api/signups');
+        if (res.ok) {
+          const data = await res.json();
+          renderSignups(Array.isArray(data) ? data : (data.signups || []));
+        }
+      } catch (e) {
+        console.warn('Could not load signups', e);
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      msgEl.className = 'msg';
+
+      const payload = {
+        playerTag: document.getElementById('playerTag').value.trim(),
+        discord: document.getElementById('discord').value.trim(),
+        region: document.getElementById('region').value.trim(),
+        characterMain: document.getElementById('characterMain').value.trim(),
+        platform: document.getElementById('platform').value,
+        notes: document.getElementById('notes').value.trim()
+      };
+
+      if (!payload.playerTag) {
+        showMessage('Player Tag is required.', 'error');
+        submitBtn.disabled = false;
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          showMessage('Successfully registered! See you in the lobby.', 'success');
+          form.reset();
+          // Refresh list
+          loadEventAndSignups();
+        } else {
+          showMessage(data.error || 'Registration failed. Try again.', 'error');
+        }
+      } catch (err) {
+        showMessage('Network error. Is the server running?', 'error');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    // Socket for live updates
+    try {
+      const socket = io();
+      socket.on('connect', () => {
+        socket.emit('requestState');
+      });
+      socket.on('signupsUpdate', (signups) => {
+        renderSignups(signups);
+      });
+      socket.on('matchUpdate', (state) => {
+        if (state && state.tournamentName) {
+          currentEvent.name = state.tournamentName;
+          eventInfo.innerHTML = `<strong>${escapeHtml(currentEvent.name)}</strong><br>Game: Tekken 8 &nbsp;•&nbsp; Date: ${escapeHtml(currentEvent.date)}`;
+        }
+      });
+    } catch (e) {
+      console.warn('Socket.io not available yet');
+    }
+
+    // Initial load
+    loadEventAndSignups();
+  </script>
+</body>
+</html>
