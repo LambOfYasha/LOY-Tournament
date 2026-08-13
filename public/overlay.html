@@ -3,147 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FGC Overlay | LOY Software</title>
+  <title>Ling Panda Maiden Tournament Overlay | LOY Software</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      background: transparent !important;
-      overflow: hidden;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-    }
-    #overlay {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      pointer-events: none;
-    }
-    .player {
-      display: flex;
-      align-items: center;
-      background: linear-gradient(90deg, rgba(10,10,20,0.92), rgba(20,20,35,0.85));
-      border: 2px solid #ff2a2a;
-      min-width: 320px;
-      height: 70px;
-      padding: 0 1.2rem;
-    }
-    .player.p1 {
-      border-radius: 8px 0 0 8px;
-      border-right: none;
-      justify-content: flex-end;
-      text-align: right;
-    }
-    .player.p2 {
-      border-radius: 0 8px 8px 0;
-      border-left: none;
-    }
-    .name {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #fff;
-      text-shadow: 0 2px 4px #000;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .char {
-      font-size: 0.85rem;
-      color: #ff8a8a;
-      margin-top: 2px;
-    }
-    .score-box {
-      width: 70px;
-      height: 70px;
-      background: #ff2a2a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.4rem;
-      font-weight: 900;
-      color: #fff;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    }
-    .center {
-      background: rgba(0,0,0,0.85);
-      border-top: 2px solid #ff2a2a;
-      border-bottom: 2px solid #ff2a2a;
-      padding: 0.4rem 1.5rem;
-      text-align: center;
-      min-width: 180px;
-    }
-    .round {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #fff;
-    }
-    .bestof {
-      font-size: 0.75rem;
-      color: #aaa;
-      margin-top: 2px;
-    }
-    .tournament {
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.8rem;
-      color: #ff6b6b;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      background: rgba(0,0,0,0.6);
-      padding: 2px 12px;
-      border-radius: 4px;
-    }
+    :root{--ink:rgba(10,9,14,.96);--ink2:rgba(20,16,25,.92);--pink:#ff5ca8;--rose:#ff9dca;--plum:#9b5de5;--gold:#e7b95a;--gold2:#ffe6a6;--white:#fff8fc;--muted:#c9b8c4}
+    *{box-sizing:border-box;margin:0;padding:0}html,body{width:100%;height:100%;background:transparent!important;overflow:hidden;font-family:"Segoe UI",system-ui,sans-serif;color:var(--white)}
+    .shell{position:absolute;inset:0;pointer-events:none}.brand{position:absolute;top:8px;left:50%;transform:translateX(-50%);padding:5px 18px;border:1px solid var(--gold);border-radius:999px;background:linear-gradient(90deg,rgba(8,8,12,.96),rgba(40,18,34,.96),rgba(8,8,12,.96));color:var(--rose);font-weight:900;font-size:11px;letter-spacing:.18em;text-transform:uppercase;box-shadow:0 0 20px rgba(255,92,168,.2)}.brand:before{content:"🐾  "}.brand:after{content:"  ✝";color:var(--gold2)}
+    .top{position:absolute;top:24px;left:50%;transform:translateX(-50%);width:min(1500px,94vw);display:grid;grid-template-columns:1fr 145px 220px 145px 1fr;filter:drop-shadow(0 16px 24px rgba(0,0,0,.45))}
+    .player,.score,.center{height:104px}.player{position:relative;overflow:hidden;background:linear-gradient(135deg,var(--ink),var(--ink2));border:2px solid var(--gold)}.player:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 0 64%,rgba(255,92,168,.08) 64% 68%,transparent 68%),radial-gradient(circle at 18px 18px,rgba(255,92,168,.28) 0 4px,transparent 5px),radial-gradient(circle at 34px 14px,rgba(255,92,168,.14) 0 3px,transparent 4px)}.p1{border-radius:18px 0 0 18px;border-right:0}.p2{border-radius:0 18px 18px 0;border-left:0}.player:after{content:"";position:absolute;bottom:0;width:58%;height:5px;background:linear-gradient(90deg,transparent,var(--pink),var(--gold));box-shadow:0 0 14px rgba(255,92,168,.7)}.p1:after{right:0}.p2:after{left:0;transform:scaleX(-1)}
+    .inner{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:center;padding:14px 22px}.p1 .inner{align-items:flex-end;text-align:right}.p2 .inner{align-items:flex-start;text-align:left}.slot{font-size:12px;text-transform:uppercase;letter-spacing:.2em;font-weight:900;color:var(--rose);margin-bottom:4px}.name{font-size:clamp(22px,2vw,34px);font-weight:1000;font-style:italic;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:430px;text-shadow:0 2px 0 #000,0 0 12px rgba(255,92,168,.3)}.char{font-size:13px;color:var(--muted);font-weight:700;margin-top:3px;max-width:360px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .score{display:grid;place-items:center;background:linear-gradient(180deg,rgba(255,92,168,.16),rgba(10,9,14,.98));border-top:2px solid var(--gold);border-bottom:2px solid var(--gold);font-size:54px;font-weight:1000;text-shadow:0 0 14px rgba(255,92,168,.55);position:relative}.score:before{content:"✦";position:absolute;top:4px;font-size:10px;color:var(--gold2)}
+    .center{background:radial-gradient(circle at center,rgba(255,92,168,.18),transparent 66%),linear-gradient(180deg,rgba(22,18,29,.98),rgba(8,8,12,.98));border:2px solid var(--gold);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}.round{font-weight:1000;font-size:17px;text-transform:uppercase;letter-spacing:.08em}.bestof{color:var(--gold2);font-weight:800;font-size:11px;letter-spacing:.18em;text-transform:uppercase;margin-top:6px}
+    .bottom{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);width:min(1500px,94vw);height:72px;display:grid;grid-template-columns:1.7fr 1fr 230px 1.7fr;filter:drop-shadow(0 14px 20px rgba(0,0,0,.45))}.seg,.mini-score{background:linear-gradient(180deg,rgba(21,17,27,.96),rgba(8,8,12,.96));border-top:2px solid var(--gold);border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}.seg:first-child{border-left:2px solid var(--gold);border-radius:16px 0 0 16px}.seg:last-child{border-right:2px solid var(--gold);border-radius:0 16px 16px 0}.seg:after{content:"";position:absolute;bottom:0;left:8%;right:8%;height:3px;background:linear-gradient(90deg,transparent,var(--pink),transparent)}.title{font-weight:1000;font-style:italic;text-transform:uppercase;letter-spacing:.04em;font-size:clamp(15px,1.6vw,24px)}.sub{color:var(--rose);font-weight:900;text-transform:uppercase;letter-spacing:.08em;font-size:15px}.mini-score{border:2px solid var(--gold);gap:12px;font-weight:1000;font-size:33px;background:radial-gradient(circle at center,rgba(255,92,168,.18),transparent 65%),linear-gradient(180deg,rgba(21,17,27,.98),rgba(8,8,12,.98))}.vs{color:var(--pink);font-style:italic;font-size:20px}.location{color:var(--muted);font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    @media(max-width:900px){.top{width:98vw;grid-template-columns:1fr 72px 140px 72px 1fr}.player,.score,.center{height:84px}.inner{padding:10px 12px}.slot{display:none}.name{font-size:18px}.char{font-size:10px}.score{font-size:38px}.round{font-size:12px}.bestof{font-size:9px}.bottom{height:58px;width:98vw;grid-template-columns:1.4fr .9fr 160px 1.4fr}.title{font-size:14px}.sub,.location{font-size:10px}.mini-score{font-size:24px}}
   </style>
 </head>
 <body>
-  <div class="tournament" id="tournamentName">Tekken 8 Tournament</div>
-  <div id="overlay">
-    <div class="player p1">
-      <div>
-        <div class="name" id="p1Name">Player 1</div>
-        <div class="char" id="p1Char"></div>
-      </div>
+  <div class="shell">
+    <div class="brand">Lambs_Shadow Tournament</div>
+    <div class="top">
+      <section class="player p1"><div class="inner"><div class="slot">Player 1 • Panda Side</div><div class="name" id="p1Name">Player 1</div><div class="char" id="p1Char"></div></div></section>
+      <div class="score" id="p1Score">0</div>
+      <section class="center"><div class="round" id="round">Waiting</div><div class="bestof" id="bestOf">Best of 3</div></section>
+      <div class="score" id="p2Score">0</div>
+      <section class="player p2"><div class="inner"><div class="slot">Player 2 • Panda Side</div><div class="name" id="p2Name">Player 2</div><div class="char" id="p2Char"></div></div></section>
     </div>
-    <div class="score-box" id="p1Score">0</div>
-    <div class="center">
-      <div class="round" id="round">Waiting</div>
-      <div class="bestof" id="bestOf">Best of 3</div>
-    </div>
-    <div class="score-box" id="p2Score">0</div>
-    <div class="player p2">
-      <div>
-        <div class="name" id="p2Name">Player 2</div>
-        <div class="char" id="p2Char"></div>
-      </div>
+    <div class="bottom">
+      <div class="seg"><div class="title" id="tournamentName">Tekken 8 Tournament</div></div>
+      <div class="seg"><div class="sub" id="roundBottom">Waiting</div></div>
+      <div class="mini-score"><span id="p1ScoreBottom">0</span><span class="vs">VS</span><span id="p2ScoreBottom">0</span></div>
+      <div class="seg"><div class="location">ttv lambs_shadow • Faith • Focus • Fight</div></div>
     </div>
   </div>
-
   <script src="/socket.io/socket.io.js"></script>
   <script>
-    const socket = io();
-
-    function update(state) {
-      if (!state) return;
-      document.getElementById('tournamentName').textContent = state.tournamentName || 'Tekken 8 Tournament';
-      document.getElementById('round').textContent = state.round || 'Waiting';
-      document.getElementById('bestOf').textContent = 'Best of ' + (state.bestOf || 3);
-      document.getElementById('p1Name').textContent = state.p1?.name || 'Player 1';
-      document.getElementById('p1Char').textContent = state.p1?.character || '';
-      document.getElementById('p1Score').textContent = state.p1?.score ?? 0;
-      document.getElementById('p2Name').textContent = state.p2?.name || 'Player 2';
-      document.getElementById('p2Char').textContent = state.p2?.character || '';
-      document.getElementById('p2Score').textContent = state.p2?.score ?? 0;
-    }
-
-    socket.on('connect', () => socket.emit('requestState'));
-    socket.on('matchUpdate', update);
+    const socket=io();
+    function update(state){if(!state)return;const tn=state.tournamentName||'Tekken 8 Tournament',r=state.round||'Waiting',a=state.p1?.score??0,b=state.p2?.score??0;document.getElementById('tournamentName').textContent=tn;document.getElementById('round').textContent=r;document.getElementById('roundBottom').textContent=r;document.getElementById('bestOf').textContent='Best of '+(state.bestOf||3);document.getElementById('p1Name').textContent=state.p1?.name||'Player 1';document.getElementById('p1Char').textContent=state.p1?.character||'';document.getElementById('p1Score').textContent=a;document.getElementById('p1ScoreBottom').textContent=a;document.getElementById('p2Name').textContent=state.p2?.name||'Player 2';document.getElementById('p2Char').textContent=state.p2?.character||'';document.getElementById('p2Score').textContent=b;document.getElementById('p2ScoreBottom').textContent=b}
+    socket.on('connect',()=>socket.emit('requestState'));socket.on('matchUpdate',update);
   </script>
 </body>
 </html>
