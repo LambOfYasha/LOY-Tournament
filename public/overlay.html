@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FGC Overlay | LOY Software</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: transparent !important;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    #overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      pointer-events: none;
+    }
+    .player {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(90deg, rgba(10,10,20,0.92), rgba(20,20,35,0.85));
+      border: 2px solid #ff2a2a;
+      min-width: 320px;
+      height: 70px;
+      padding: 0 1.2rem;
+    }
+    .player.p1 {
+      border-radius: 8px 0 0 8px;
+      border-right: none;
+      justify-content: flex-end;
+      text-align: right;
+    }
+    .player.p2 {
+      border-radius: 0 8px 8px 0;
+      border-left: none;
+    }
+    .name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 4px #000;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .char {
+      font-size: 0.85rem;
+      color: #ff8a8a;
+      margin-top: 2px;
+    }
+    .score-box {
+      width: 70px;
+      height: 70px;
+      background: #ff2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    .center {
+      background: rgba(0,0,0,0.85);
+      border-top: 2px solid #ff2a2a;
+      border-bottom: 2px solid #ff2a2a;
+      padding: 0.4rem 1.5rem;
+      text-align: center;
+      min-width: 180px;
+    }
+    .round {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .bestof {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 2px;
+    }
+    .tournament {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      color: #ff6b6b;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: rgba(0,0,0,0.6);
+      padding: 2px 12px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="tournament" id="tournamentName">Tekken 8 Tournament</div>
+  <div id="overlay">
+    <div class="player p1">
+      <div>
+        <div class="name" id="p1Name">Player 1</div>
+        <div class="char" id="p1Char"></div>
+      </div>
+    </div>
+    <div class="score-box" id="p1Score">0</div>
+    <div class="center">
+      <div class="round" id="round">Waiting</div>
+      <div class="bestof" id="bestOf">Best of 3</div>
+    </div>
+    <div class="score-box" id="p2Score">0</div>
+    <div class="player p2">
+      <div>
+        <div class="name" id="p2Name">Player 2</div>
+        <div class="char" id="p2Char"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    function update(state) {
+      if (!state) return;
+      document.getElementById('tournamentName').textContent = state.tournamentName || 'Tekken 8 Tournament';
+      document.getElementById('round').textContent = state.round || 'Waiting';
+      document.getElementById('bestOf').textContent = 'Best of ' + (state.bestOf || 3);
+      document.getElementById('p1Name').textContent = state.p1?.name || 'Player 1';
+      document.getElementById('p1Char').textContent = state.p1?.character || '';
+      document.getElementById('p1Score').textContent = state.p1?.score ?? 0;
+      document.getElementById('p2Name').textContent = state.p2?.name || 'Player 2';
+      document.getElementById('p2Char').textContent = state.p2?.character || '';
+      document.getElementById('p2Score').textContent = state.p2?.score ?? 0;
+    }
+
+    socket.on('connect', () => socket.emit('requestState'));
+    socket.on('matchUpdate', update);
+  </script>
+</body>
+</html>
