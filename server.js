@@ -119,7 +119,7 @@ app.get('/api/events', (req, res) => {
 
 app.post('/api/signup', (req, res) => {
   db = readDB();
-  const { playerTag, discord, region, characterMain, platform, notes } = req.body || {};
+  const { playerTag, whatsapp, region, characterMain, platform, notes } = req.body || {};
 
   if (!playerTag || typeof playerTag !== 'string' || playerTag.trim().length < 2) {
     return res.status(400).json({ success: false, error: "playerTag is required (min 2 chars)" });
@@ -128,7 +128,7 @@ app.post('/api/signup', (req, res) => {
   const signup = {
     id: uuidv4(),
     playerTag: playerTag.trim(),
-    discord: (discord || "").trim(),
+    whatsapp: (whatsapp || "").trim(),
     region: (region || "").trim(),
     characterMain: (characterMain || "").trim(),
     platform: (platform || "").trim(),

@@ -10,6 +10,7 @@
     .maiden{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 28%;opacity:.6;z-index:0;pointer-events:none}
     .scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(9,8,13,.62),rgba(9,8,13,.34) 42%,rgba(9,8,13,.86));pointer-events:none}
     .hero>:not(.maiden):not(.scrim){position:relative;z-index:2}
+    img.paw{display:block;height:2rem;width:auto;margin:0 auto;visibility:hidden}
   </style>
 </head>
 <body>
@@ -17,7 +18,7 @@
     <header class="hero">
       <img class="maiden" src="/ornaments/maiden.jpg" alt="" onerror="this.remove()">
       <div class="scrim"></div>
-      <div class="paw">🐼</div>
+      <img class="paw" src="/ornaments/cross.png" alt="Lambs_Shadow cross mark">
       <h1>Ling Panda <span>Maiden</span> Cup</h1>
       <p class="subtitle">Tekken 8 tournament registration for the ttv lambs_shadow community.</p>
       <div class="motto">Prayer • Bible • Tekken • Faith • Focus • Fight</div>
@@ -29,7 +30,7 @@
       <div class="section-title">Player Registration</div>
       <form id="signupForm">
         <label for="playerTag">Player Tag / GamerTag *</label><input type="text" id="playerTag" name="playerTag" required maxlength="32" placeholder="Your FGC tag">
-        <label for="discord">Discord</label><input type="text" id="discord" name="discord" maxlength="40" placeholder="user#0000 or @username">
+        <label for="whatsapp">WhatsApp</label><input type="text" id="whatsapp" name="whatsapp" inputmode="tel" maxlength="25" placeholder="+1 555 123 4567">
         <label for="region">Region</label><input type="text" id="region" name="region" maxlength="30" placeholder="NA East, EU, Asia, etc.">
         <label for="characterMain">Main Character(s)</label><input type="text" id="characterMain" name="characterMain" maxlength="50" placeholder="Ling Xiaoyu, Jin, Kazuya, Nina...">
         <label for="platform">Platform</label><select id="platform" name="platform"><option value="PC">PC (Steam)</option><option value="PS5">PlayStation 5</option><option value="Xbox">Xbox Series</option><option value="Other">Other</option></select>
@@ -55,7 +56,7 @@
     function renderSignups(signups){regCount.textContent=`(${signups.length})`;if(!signups||signups.length===0){regList.innerHTML='<li class="meta">No registrations yet.</li>';return}regList.innerHTML=signups.map(s=>`<li><span class="tag">${escapeHtml(s.playerTag)}</span><span class="meta">${escapeHtml(s.characterMain||'')} ${s.platform?'• '+s.platform:''}</span></li>`).join('')}
     function escapeHtml(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
     async function loadEventAndSignups(){try{const stateRes=await fetch('/api/state');if(stateRes.ok){const state=await stateRes.json();if(state.tournamentName)currentEvent.name=state.tournamentName}}catch(e){}eventInfo.innerHTML=`<strong>${escapeHtml(currentEvent.name)}</strong><br>Game: Tekken 8 &nbsp;•&nbsp; Date: ${escapeHtml(currentEvent.date)}`;try{const res=await fetch('/api/signups');if(res.ok){const data=await res.json();renderSignups(Array.isArray(data)?data:(data.signups||[]))}}catch(e){console.warn('Could not load signups',e)}}
-    form.addEventListener('submit',async e=>{e.preventDefault();submitBtn.disabled=true;msgEl.className='msg';const payload={playerTag:document.getElementById('playerTag').value.trim(),discord:document.getElementById('discord').value.trim(),region:document.getElementById('region').value.trim(),characterMain:document.getElementById('characterMain').value.trim(),platform:document.getElementById('platform').value,notes:document.getElementById('notes').value.trim()};if(!payload.playerTag){showMessage('Player Tag is required.','error');submitBtn.disabled=false;return}try{const res=await fetch('/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}),data=await res.json();if(res.ok&&data.success){showMessage('Successfully registered! See you in the lobby.','success');form.reset();loadEventAndSignups()}else showMessage(data.error||'Registration failed. Try again.','error')}catch(err){showMessage('Network error. Is the server running?','error')}finally{submitBtn.disabled=false}});
+    form.addEventListener('submit',async e=>{e.preventDefault();submitBtn.disabled=true;msgEl.className='msg';const payload={playerTag:document.getElementById('playerTag').value.trim(),whatsapp:document.getElementById('whatsapp').value.trim(),region:document.getElementById('region').value.trim(),characterMain:document.getElementById('characterMain').value.trim(),platform:document.getElementById('platform').value,notes:document.getElementById('notes').value.trim()};if(!payload.playerTag){showMessage('Player Tag is required.','error');submitBtn.disabled=false;return}try{const res=await fetch('/api/signup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}),data=await res.json();if(res.ok&&data.success){showMessage('Successfully registered! See you in the lobby.','success');form.reset();loadEventAndSignups()}else showMessage(data.error||'Registration failed. Try again.','error')}catch(err){showMessage('Network error. Is the server running?','error')}finally{submitBtn.disabled=false}});
     try{const socket=io();socket.on('connect',()=>socket.emit('requestState'));socket.on('signupsUpdate',renderSignups);socket.on('matchUpdate',state=>{if(state&&state.tournamentName){currentEvent.name=state.tournamentName;eventInfo.innerHTML=`<strong>${escapeHtml(currentEvent.name)}</strong><br>Game: Tekken 8 &nbsp;•&nbsp; Date: ${escapeHtml(currentEvent.date)}`}})}catch(e){console.warn('Socket.io not available yet')}
     loadEventAndSignups();
   </script>
