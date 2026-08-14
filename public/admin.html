@@ -194,6 +194,27 @@
     }
     .dot.connected { background: #5fd08a; box-shadow: 0 0 8px #5fd08a; }
 
+    .admin-nav {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: -4px 4px 14px;
+    }
+    .admin-nav a {
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      color: var(--fg);
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: #1c1418;
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--gold) 40%, transparent);
+    }
+    .admin-nav a:hover { color: var(--rose-ink); background: var(--rose-deep); }
+
     .panel-grid {
       position: relative;
       z-index: 2;
@@ -446,6 +467,12 @@
           <span id="connStatus">Connecting...</span>
           <span style="margin-left:auto" id="lastUpdated"></span>
         </div>
+        <nav class="admin-nav">
+          <a href="/offstream">Offstream desk</a>
+          <a href="/nowplaying">Now Playing overlay</a>
+          <a href="/overlay">Score overlay</a>
+          <a href="/signup">Signup</a>
+        </nav>
 
         <div class="panel-grid">
           <section class="panel">

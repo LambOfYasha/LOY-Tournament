@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offstream Desk | LOY Software</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --void: #070406; --fg: #f6eef1; --muted: #b7a4aa; --faint: #7d6b72;
+      --rose: #e07098; --rose-bright: #f0a0b8; --rose-deep: #9a2f58; --rose-ink: #fff4f7;
+      --gold: #d4b06a; --gold-bright: #f0dca0; --gold-deep: #8a6430;
+      --font-display: "UnifrakturMaguntia", "Times New Roman", serif;
+      --font-sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+      --shadow-gold: 0 0 0 1px color-mix(in oklab, var(--gold) 55%, transparent), inset 0 0 0 1px color-mix(in oklab, var(--gold-deep) 70%, #000 30%), inset 0 0 22px rgb(0 0 0 / 0.55);
+      --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.04), inset 0 -1px 0 rgb(0 0 0 / 0.5), 0 0 0 1px color-mix(in oklab, var(--gold) 28%, transparent);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; background: var(--void); color: var(--fg); font-family: var(--font-sans); }
+    body { overflow-x: hidden; }
+    button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
+    input, select, button { font: inherit; color: inherit; }
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    .stage {
+      min-height: 100dvh; padding: clamp(48px, 6vw, 72px) clamp(18px, 3.2vw, 48px) 40px;
+      background:
+        radial-gradient(1200px 600px at 8% -10%, rgb(160 40 80 / 0.28), transparent 55%),
+        linear-gradient(155deg, #14080e 0%, #0a0508 42%, #160910 100%);
+    }
+    .stage-inner { max-width: 1100px; margin: 0 auto; }
+    .ornate-shell {
+      position: relative; padding: 22px 18px 18px;
+      background: linear-gradient(180deg, rgb(22 12 16 / 0.92), rgb(8 5 7 / 0.96));
+      border-radius: 14px;
+      box-shadow: 0 0 0 1px #6b4e28, 0 0 0 3px #c4a265, 0 0 0 4px #3a2814, 0 24px 60px rgb(0 0 0 / 0.65);
+    }
+    .ornament { position: absolute; pointer-events: none; }
+    .bow-tl { top: -48px; left: -48px; width: min(160px, 28vw); transform: rotate(-10deg); }
+    .bow-tr { top: -46px; right: -50px; width: min(160px, 28vw); transform: scaleX(-1) rotate(-8deg); }
+    .panda { right: -16px; bottom: -20px; width: min(120px, 24vw); }
+    .title-plaque {
+      margin: 0 auto 10px; max-width: 720px; padding: 18px 24px; text-align: center;
+      background: radial-gradient(120% 140% at 50% 0%, #2a1a20 0%, #10080c 62%, #0a0608 100%);
+      border: 1px solid var(--gold); border-radius: 8px;
+    }
+    h1 { font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 400; color: #ef7ea4; text-shadow: 0 1px 0 #8a6430; }
+    .lede { text-align: center; color: var(--muted); font-size: .92rem; line-height: 1.5; margin: 0 12px 12px; }
+    .nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .nav a {
+      min-height: 36px; padding: 8px 12px; border-radius: 6px; color: var(--fg); text-decoration: none; font-size: .8rem; font-weight: 600;
+      background: #1c1418; box-shadow: 0 0 0 1px color-mix(in oklab, var(--gold) 40%, transparent);
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .panel { background: linear-gradient(180deg, #141014, #0c090b); border-radius: 10px; padding: 14px; box-shadow: var(--shadow-gold); }
+    .panel-title { margin: 0 0 10px; color: var(--rose-bright); font-size: 1.02rem; }
+    .bot { grid-column: 1 / -1; }
+    .roster, .results { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .person, .results li {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 44px;
+      padding: 8px 10px; border-radius: 8px; background: #161014; box-shadow: var(--shadow-inset);
+    }
+    .person strong, .results strong { display: block; }
+    .person span, .results span { display: block; font-size: .75rem; color: var(--muted); }
+    .chip, .ghost, .rose {
+      border: 0; border-radius: 6px; min-height: 36px; padding: 6px 10px; font-weight: 600;
+    }
+    .chip { background: #1a1418; color: var(--muted); box-shadow: 0 0 0 1px color-mix(in oklab, var(--gold) 28%, transparent); }
+    .chip.live { color: var(--rose-ink); background: linear-gradient(180deg, var(--rose), var(--rose-deep)); }
+    .vs { font-family: var(--font-display); font-size: 1.35rem; color: var(--rose-bright); }
+    .vs em { font-style: normal; color: var(--gold); padding: 0 8px; }
+    .meta { color: var(--gold); font-size: .8rem; margin: 4px 0 10px; }
+    .note { color: var(--muted); line-height: 1.45; margin-bottom: 12px; }
+    .ghost-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ghost { background: #1a1418; color: var(--fg); box-shadow: 0 0 0 1px color-mix(in oklab, var(--gold) 42%, transparent); }
+    .log { max-height: 220px; overflow: auto; padding: 10px 12px; margin-bottom: 10px; border-radius: 8px; background: #161014; box-shadow: var(--shadow-inset); }
+    .line { margin: 0 0 6px; font-size: .86rem; line-height: 1.4; white-space: pre-wrap; }
+    .line b { color: var(--gold); margin-right: 6px; }
+    .line.bot b { color: var(--rose); }
+    .compose { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; margin: 10px 0; }
+    .field-input, select {
+      width: 100%; min-height: 36px; padding: 6px 10px; border: 0; border-radius: 4px; background: #1a1418; box-shadow: var(--shadow-inset);
+    }
+    .rose { color: var(--rose-ink); background: linear-gradient(180deg, #f0a8c0, #9a2f58); box-shadow: 0 0 0 1px #e8c98a, 0 0 0 2px #6b4e28; }
+    .add { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-top: 10px; }
+    .sub { margin-top: 16px; }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+      .bot { grid-column: auto; }
+      .add { grid-template-columns: 1fr; }
+      .bow-tl, .bow-tr { width: 86px; top: -22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div class="stage-inner">
+      <div class="ornate-shell">
+        <img src="/ornaments/bow.png" alt="" class="ornament bow-tl">
+        <img src="/ornaments/bow.png" alt="" class="ornament bow-tr">
+        <img src="/ornaments/panda.png" alt="" class="ornament panda">
+        <div class="title-plaque"><h1>Offstream Desk</h1></div>
+        <p class="lede">Sign up → check in → play off-stream → one player <b>!report 2-1</b> → opponent <b>!confirm</b>. Locked results push the tournament overlay.</p>
+        <nav class="nav">
+          <a href="/admin">Stream desk</a>
+          <a href="/overlay">Score overlay</a>
+          <a href="/nowplaying">Now Playing</a>
+          <a href="/signup">Signup</a>
+        </nav>
+        <div class="grid">
+          <section class="panel">
+            <h2 class="panel-title">Signups</h2>
+            <ul class="roster" id="roster"></ul>
+            <div class="add">
+              <input class="field-input" id="newTag" placeholder="Tag">
+              <input class="field-input" id="newChar" placeholder="Character">
+              <button class="rose" type="button" id="signupBtn">Sign up</button>
+            </div>
+          </section>
+          <section class="panel">
+            <h2 class="panel-title">Open match</h2>
+            <div id="matchBox"></div>
+            <h2 class="panel-title sub">Locked results</h2>
+            <ul class="results" id="results"></ul>
+          </section>
+          <section class="panel bot">
+            <h2 class="panel-title">PandaBot</h2>
+            <p class="meta">Same commands a live Twitch bot forwards. Talk as a player or as a mod.</p>
+            <div class="log" id="log"></div>
+            <label class="meta">Chatting as
+              <select id="actor"></select>
+            </label>
+            <div class="compose">
+              <input class="field-input" id="draft" placeholder="!report 2-1" value="!report 2-1">
+              <button class="rose" type="button" id="send">Send</button>
+            </div>
+            <div class="ghost-row">
+              <button class="ghost" type="button" data-cmd="!help">!help</button>
+              <button class="ghost" type="button" data-cmd="!checkin">!checkin</button>
+              <button class="ghost" type="button" id="prepOffstream">!offstream</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let snap = { signups: [], match: null, results: [], chat: [], bestOf: 3 };
+    const $ = (id) => document.getElementById(id);
+    const esc = (t) => String(t || '').replace(/[&<>"]/g, (c) => ({'&':'&','<':'<','>':'>','"':'"'}[c]));
+    const byId = (id) => (snap.signups || []).find((s) => s.id === id);
+
+    function actorPayload() {
+      const v = $('actor').value;
+      if (v === 'mod') return { login: 'pandamaiden', display: 'PandaMaiden', isMod: true };
+      const p = byId(v);
+      return p
+        ? { login: (p.twitch || p.playerTag).toLowerCase(), display: p.playerTag, isMod: false }
+        : { login: 'anon', display: 'anon', isMod: false };
+    }
+
+    function render() {
+      const roster = $('roster');
+      if (!snap.signups.length) roster.innerHTML = '<li class="note">No signups yet.</li>';
+      else roster.innerHTML = snap.signups.map((s) => `
+        <li class="person">
+          <div><strong>${esc(s.playerTag)}</strong><span>${esc(s.characterMain || '—')} · ${s.checkedIn ? 'checked in' : 'signed up'}</span></div>
+          <button type="button" class="chip ${s.checkedIn ? '' : 'live'}" data-check="${s.id}">${s.checkedIn ? 'Out' : 'Check in'}</button>
+        </li>`).join('');
+
+      const box = $('matchBox');
+      if (snap.match) {
+        const a = byId(snap.match.p1Id), b = byId(snap.match.p2Id);
+        const rep = snap.match.report ? byId(snap.match.report.byId) : null;
+        box.innerHTML = `
+          <p class="vs">${esc(a && a.playerTag)} <em>vs</em> ${esc(b && b.playerTag)}</p>
+          <p class="meta">Bo${snap.match.bestOf} · ${esc(snap.match.status.replace(/_/g,' '))}</p>
+          <p class="note">${snap.match.report
+            ? esc(rep && rep.playerTag) + ' reported ' + snap.match.report.reporterScore + '–' + snap.match.report.opponentScore + '. Waiting on the opponent.'
+            : 'Play the set. Then a player types !report 2-1 (their games first).'}</p>
+          <div class="ghost-row">
+            <button class="ghost" type="button" data-as="${a && a.id}" data-fill="!report 2-1">Report as ${esc(a && a.playerTag)}</button>
+            <button class="ghost" type="button" data-as="${b && b.id}" data-fill="!confirm">Confirm as ${esc(b && b.playerTag)}</button>
+          </div>`;
+      } else {
+        box.innerHTML = `<p class="note">No open set. After both players check in, a mod runs !offstream @p1 @p2. Default series is Bo${snap.bestOf}.</p>`;
+      }
+
+      const res = $('results');
+      if (!snap.results.length) res.innerHTML = '<li class="note">No confirmed offstream results yet.</li>';
+      else res.innerHTML = snap.results.map((r) => {
+        const a = byId(r.p1Id), b = byId(r.p2Id), w = r.result && byId(r.result.winnerId);
+        return `<li><div><strong>${esc(a && a.playerTag)} ${r.result ? r.result.p1Score : ''}–${r.result ? r.result.p2Score : ''} ${esc(b && b.playerTag)}</strong><span>Winner ${esc(w && w.playerTag)}</span></div></li>`;
+      }).join('');
+
+      const actor = $('actor');
+      const keep = actor.value;
+      actor.innerHTML = '<option value="mod">Mod · PandaMaiden</option>' +
+        snap.signups.map((s) => `<option value="${s.id}">${esc(s.playerTag)}${s.checkedIn ? ' · checked in' : ''}</option>`).join('');
+      if ([...actor.options].some((o) => o.value === keep)) actor.value = keep;
+
+      const log = $('log');
+      log.innerHTML = (snap.chat || []).map((c) => `<p class="line ${c.role}"><b>${esc(c.user)}</b> ${esc(c.text)}</p>`).join('');
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function send(text) {
+      const t = (text || $('draft').value || '').trim();
+      if (!t) return;
+      socket.emit('botCommand', { ...actorPayload(), text: t });
+      $('draft').value = '';
+    }
+
+    $('send').onclick = () => send();
+    $('draft').addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+    document.querySelectorAll('[data-cmd]').forEach((b) => b.onclick = () => send(b.dataset.cmd));
+    $('prepOffstream').onclick = () => {
+      $('actor').value = 'mod';
+      const inQ = (snap.signups || []).filter((s) => s.checkedIn);
+      $('draft').value = inQ.length >= 2
+        ? `!offstream ${inQ[0].playerTag} ${inQ[1].playerTag}`
+        : '!offstream';
+    };
+    $('signupBtn').onclick = async () => {
+      const playerTag = $('newTag').value.trim();
+      const characterMain = $('newChar').value.trim();
+      if (!playerTag || !characterMain) return;
+      await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerTag, characterMain, platform: 'PC', region: 'NA' })
+      });
+      $('newTag').value = '';
+      $('newChar').value = '';
+    };
+    document.addEventListener('click', (e) => {
+      const check = e.target.closest('[data-check]');
+      if (check) {
+        const p = byId(check.dataset.check);
+        if (!p) return;
+        $('actor').value = p.id;
+        send(p.checkedIn ? '!checkout' : '!checkin');
+      }
+      const as = e.target.closest('[data-as]');
+      if (as && as.dataset.as) {
+        $('actor').value = as.dataset.as;
+        $('draft').value = as.dataset.fill || '';
+      }
+    });
+
+    socket.on('offstreamUpdate', (s) => { snap = s; render(); });
+    socket.on('signupsUpdate', (list) => { snap.signups = list || []; render(); });
+    socket.on('connect', () => socket.emit('requestState'));
+  </script>
+</body>
+</html>

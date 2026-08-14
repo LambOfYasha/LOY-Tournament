@@ -4,23 +4,24 @@ const { Server } = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
+const { ensureOffstream, snapshot, runCommand } = require('./lib/offstream');
+const { normalizeTrack } = require('./lib/nowplaying');
+const { startTwitchBot } = require('./bot/twitch');
 
 const app = express();
 const server = http.createServer(app);
 
-// Production-ready CORS + Socket.io
 const PUBLIC_URL = process.env.PUBLIC_URL || process.env.BASE_URL || '';
 const io = new Server(server, {
   cors: {
     origin: process.env.CORS_ORIGIN || "*",
     methods: ["GET", "POST"]
   },
-  // Allow path-based deployment if needed later
   path: process.env.SOCKET_PATH || "/socket.io"
 });
 
 const PORT = process.env.PORT || 3000;
-const ADMIN_KEY = process.env.ADMIN_KEY || ""; // optional; if set, protect /admin and mutating routes
+const ADMIN_KEY = process.env.ADMIN_KEY || "";
 const DATA_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
@@ -44,7 +45,9 @@ const defaultData = {
       status: "open",
       description: "Local FGC Tekken 8 tournament. Bring your A-game."
     }
-  ]
+  ],
+  offstream: { match: null, results: [], chat: [] },
+  nowPlaying: null
 };
 
 function ensureDataDir() {
@@ -60,6 +63,9 @@ function readDB() {
       data.matchState = data.matchState || { ...defaultData.matchState };
       data.signups = Array.isArray(data.signups) ? data.signups : [];
       data.events = Array.isArray(data.events) ? data.events : defaultData.events;
+      data.offstream = data.offstream || { match: null, results: [], chat: [] };
+      if (!('nowPlaying' in data)) data.nowPlaying = null;
+      ensureOffstream(data);
       return data;
     }
   } catch (e) {
@@ -75,18 +81,40 @@ function writeDB(data) {
 
 let db = readDB();
 
-// Simple optional admin key middleware
 function requireAdmin(req, res, next) {
-  if (!ADMIN_KEY) return next(); // open if no key configured
+  if (!ADMIN_KEY) return next();
   const key = req.query.key || req.headers['x-admin-key'] || (req.body && req.body.adminKey);
   if (key === ADMIN_KEY) return next();
   return res.status(401).json({ success: false, error: "Unauthorized – provide valid admin key" });
 }
 
+function applyOverlayPatch(patch) {
+  if (!patch) return;
+  db = readDB();
+  db.matchState = {
+    ...db.matchState,
+    ...patch,
+    p1: { ...db.matchState.p1, ...(patch.p1 || {}) },
+    p2: { ...db.matchState.p2, ...(patch.p2 || {}) },
+    lastUpdated: Date.now()
+  };
+  writeDB(db);
+  io.emit('matchUpdate', db.matchState);
+}
+
+function handleBot(actor, text) {
+  db = readDB();
+  const result = runCommand(db, actor, text);
+  writeDB(db);
+  io.emit('offstreamUpdate', result.snapshot);
+  io.emit('signupsUpdate', db.signups);
+  if (result.overlay) applyOverlayPatch(result.overlay);
+  return result;
+}
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Pages
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 });
@@ -94,14 +122,18 @@ app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 });
 app.get('/admin', (req, res) => {
-  // Page itself is public; mutations are protected
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 app.get('/overlay', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'overlay.html'));
 });
+app.get('/offstream', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'offstream.html'));
+});
+app.get('/nowplaying', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'nowplaying.html'));
+});
 
-// Public API
 app.get('/api/state', (req, res) => {
   db = readDB();
   res.json(db.matchState);
@@ -117,9 +149,19 @@ app.get('/api/events', (req, res) => {
   res.json(db.events);
 });
 
+app.get('/api/offstream', (req, res) => {
+  db = readDB();
+  res.json(snapshot(db));
+});
+
+app.get('/api/nowplaying', (req, res) => {
+  db = readDB();
+  res.json(db.nowPlaying);
+});
+
 app.post('/api/signup', (req, res) => {
   db = readDB();
-  const { playerTag, whatsapp, region, characterMain, platform, notes } = req.body || {};
+  const { playerTag, whatsapp, region, characterMain, platform, notes, twitch } = req.body || {};
 
   if (!playerTag || typeof playerTag !== 'string' || playerTag.trim().length < 2) {
     return res.status(400).json({ success: false, error: "playerTag is required (min 2 chars)" });
@@ -133,16 +175,46 @@ app.post('/api/signup', (req, res) => {
     characterMain: (characterMain || "").trim(),
     platform: (platform || "").trim(),
     notes: (notes || "").trim(),
+    twitch: String(twitch || playerTag).trim().replace(/^@/, "").toLowerCase(),
+    checkedIn: false,
+    checkedInAt: null,
     registeredAt: new Date().toISOString()
   };
 
   db.signups.push(signup);
   writeDB(db);
   io.emit('signupsUpdate', db.signups);
+  io.emit('offstreamUpdate', snapshot(db));
   res.json({ success: true, id: signup.id, signup });
 });
 
-// Protected mutating routes
+app.post('/api/bot', (req, res) => {
+  const { login, display, isMod, text, adminKey } = req.body || {};
+  if (ADMIN_KEY && !isMod && adminKey !== ADMIN_KEY) {
+    // players can still report/confirm; mods from HTTP need key if claiming isMod
+  }
+  if (ADMIN_KEY && isMod && adminKey !== ADMIN_KEY) {
+    return res.status(401).json({ success: false, error: "Unauthorized mod claim" });
+  }
+  if (!text) return res.status(400).json({ success: false, error: "text is required" });
+  const result = handleBot({
+    login: String(login || display || "anon").toLowerCase(),
+    display: String(display || login || "anon"),
+    isMod: Boolean(isMod)
+  }, text);
+  res.json({ success: true, reply: result.reply, snapshot: result.snapshot });
+});
+
+app.post('/api/nowplaying', requireAdmin, (req, res) => {
+  const track = normalizeTrack(req.body || {});
+  if (!track) return res.status(400).json({ success: false, error: "title is required" });
+  db = readDB();
+  db.nowPlaying = track;
+  writeDB(db);
+  io.emit('nowPlaying', track);
+  res.json({ success: true, track });
+});
+
 app.post('/api/state', requireAdmin, (req, res) => {
   db = readDB();
   const updates = req.body || {};
@@ -166,24 +238,27 @@ app.delete('/api/signups', requireAdmin, (req, res) => {
   db.signups = [];
   writeDB(db);
   io.emit('signupsUpdate', []);
+  io.emit('offstreamUpdate', snapshot(db));
   res.json({ success: true });
 });
 
-// Socket.io
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
   db = readDB();
   socket.emit('matchUpdate', db.matchState);
   socket.emit('signupsUpdate', db.signups);
+  socket.emit('offstreamUpdate', snapshot(db));
+  if (db.nowPlaying) socket.emit('nowPlaying', db.nowPlaying);
 
   socket.on('requestState', () => {
     db = readDB();
     socket.emit('matchUpdate', db.matchState);
     socket.emit('signupsUpdate', db.signups);
+    socket.emit('offstreamUpdate', snapshot(db));
+    if (db.nowPlaying) socket.emit('nowPlaying', db.nowPlaying);
   });
 
   socket.on('adminUpdateMatch', (payload) => {
-    // Optional key check via payload.adminKey if ADMIN_KEY is set
     if (ADMIN_KEY && payload && payload.adminKey !== ADMIN_KEY) {
       socket.emit('error', { message: 'Unauthorized' });
       return;
@@ -198,7 +273,7 @@ io.on('connection', (socket) => {
       p2: { ...current.p2, ...(payload.p2 || {}) },
       lastUpdated: Date.now()
     };
-    delete newState.adminKey; // don't store the key
+    delete newState.adminKey;
     newState.p1.score = Number(newState.p1.score) || 0;
     newState.p2.score = Number(newState.p2.score) || 0;
     newState.bestOf = Number(newState.bestOf) || 3;
@@ -232,17 +307,48 @@ io.on('connection', (socket) => {
     io.emit('matchUpdate', db.matchState);
   });
 
+  socket.on('botCommand', (payload) => {
+    if (!payload || typeof payload.text !== 'string') return;
+    const isMod = Boolean(payload.isMod);
+    if (ADMIN_KEY && isMod && payload.adminKey !== ADMIN_KEY) {
+      socket.emit('error', { message: 'Unauthorized' });
+      return;
+    }
+    const result = handleBot({
+      login: String(payload.login || payload.display || "anon").toLowerCase(),
+      display: String(payload.display || payload.login || "anon"),
+      isMod
+    }, payload.text);
+    socket.emit('botReply', { reply: result.reply });
+  });
+
+  socket.on('nowPlayingPush', (payload) => {
+    if (ADMIN_KEY && payload && payload.adminKey !== ADMIN_KEY) return;
+    const track = normalizeTrack(payload || {});
+    if (!track) return;
+    db = readDB();
+    db.nowPlaying = track;
+    writeDB(db);
+    io.emit('nowPlaying', track);
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });
 });
 
+startTwitchBot({
+  runChat: (actor, text) => handleBot(actor, text)
+});
+
 server.listen(PORT, () => {
   console.log(`FGC Tournament Webapp (LOY Software) running on port ${PORT}`);
   console.log(`  Public URL base: ${PUBLIC_URL || '(local)'}`);
-  console.log(`  Overlay:  ${PUBLIC_URL || 'http://localhost:' + PORT}/overlay`);
-  console.log(`  Admin:    ${PUBLIC_URL || 'http://localhost:' + PORT}/admin`);
-  console.log(`  Signup:   ${PUBLIC_URL || 'http://localhost:' + PORT}/signup`);
+  console.log(`  Overlay:     ${PUBLIC_URL || 'http://localhost:' + PORT}/overlay`);
+  console.log(`  Now Playing: ${PUBLIC_URL || 'http://localhost:' + PORT}/nowplaying`);
+  console.log(`  Offstream:   ${PUBLIC_URL || 'http://localhost:' + PORT}/offstream`);
+  console.log(`  Admin:       ${PUBLIC_URL || 'http://localhost:' + PORT}/admin`);
+  console.log(`  Signup:      ${PUBLIC_URL || 'http://localhost:' + PORT}/signup`);
   if (ADMIN_KEY) console.log('  Admin key protection: ENABLED');
   else console.log('  Admin key protection: OFF (set ADMIN_KEY env to enable)');
 });

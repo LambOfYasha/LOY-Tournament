@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Now Playing Overlay | LOY Software</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --fg: #f6eef1; --muted: #b7a4aa; --rose: #e07098; --rose-bright: #f0a0b8; --rose-deep: #9a2f58;
+      --rose-ink: #fff4f7; --gold: #d4b06a; --gold-deep: #8a6430;
+      --font-display: "UnifrakturMaguntia", "Times New Roman", serif;
+      --font-sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    }
+    html, body { margin: 0; width: 100%; height: 100%; background: transparent !important; overflow: hidden; font-family: var(--font-sans); color: var(--fg); }
+    .np-card {
+      position: fixed; left: 28px; bottom: 32px; display: none;
+      grid-template-columns: 88px minmax(0,1fr); gap: 12px 14px;
+      width: min(460px, calc(100vw - 28px)); padding: 16px 18px 14px;
+      background: linear-gradient(180deg, #181014, #0c080a); border-radius: 14px;
+      box-shadow: 0 0 0 1px #6b4e28, 0 0 0 3px #c4a265, 0 0 0 4px #3a2814, 0 18px 40px rgb(0 0 0 / .55);
+    }
+    .np-card.show { display: grid; animation: enter 420ms cubic-bezier(.22,1,.36,1) both; }
+    .np-card.hide { display: grid; animation: exit 280ms ease-in both; }
+    @keyframes enter { from { opacity: 0; transform: translateX(-20px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+    @keyframes exit { from { opacity: 1; } to { opacity: 0; transform: translateY(-10px); filter: blur(4px); } }
+    .bow { position: absolute; top: -28px; left: -22px; width: 78px; transform: rotate(-12deg); }
+    .cross { position: absolute; top: -14px; left: 50%; width: 16px; transform: translateX(-50%); }
+    .panda { position: absolute; right: -16px; bottom: -18px; width: 72px; }
+    .art { width: 88px; height: 88px; border-radius: 8px; object-fit: cover; box-shadow: 0 0 0 1px var(--gold), 0 0 0 3px #3a2814; }
+    .kicker { margin: 0 0 2px; font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+    h2 { margin: 0; font-family: var(--font-display); font-size: 1.25rem; font-weight: 400; color: var(--rose-bright); text-shadow: 0 1px 0 var(--gold-deep); }
+    .artist { margin: 4px 0 8px; font-size: .9rem; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: .72rem; color: var(--muted); }
+    .src { padding: 2px 8px; border-radius: 999px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--rose-ink); background: linear-gradient(180deg, var(--rose), var(--rose-deep)); }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 999px; background: #1a1418; overflow: hidden; }
+    .bar span { display: block; height: 100%; width: 100%; transform-origin: left; background: linear-gradient(90deg, var(--rose-deep), var(--rose-bright), var(--gold)); transform: scaleX(0); }
+    .labels { Suno: "Suno"; vlc: "VLC"; ytmusic: "YouTube Music"; spotify: "Spotify"; }
+  </style>
+</head>
+<body>
+  <aside class="np-card" id="card">
+    <img class="bow" src="/ornaments/bow.png" alt="">
+    <img class="cross" src="/ornaments/cross.png" alt="">
+    <img class="panda" src="/ornaments/panda.png" alt="">
+    <img class="art" id="art" alt="">
+    <div>
+      <p class="kicker">Now playing</p>
+      <h2 id="title">—</h2>
+      <p class="artist" id="artist">—</p>
+      <div class="row">
+        <span class="src" id="source">Suno</span>
+        <span id="album"></span>
+      </div>
+    </div>
+    <div class="bar"><span id="bar"></span></div>
+  </aside>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const LABELS = { suno: 'Suno', vlc: 'VLC', ytmusic: 'YouTube Music', spotify: 'Spotify' };
+    const HOLD = 9200;
+    const card = document.getElementById('card');
+    const bar = document.getElementById('bar');
+    let hideTimer, raf;
+
+    function show(track) {
+      if (!track || !track.title) return;
+      document.getElementById('title').textContent = track.title;
+      document.getElementById('artist').textContent = track.artist || 'Unknown Artist';
+      document.getElementById('album').textContent = track.album || '';
+      document.getElementById('source').textContent = LABELS[track.source] || track.source || 'Suno';
+      document.getElementById('art').src = track.cover || '/covers/maiden.svg';
+      card.classList.remove('hide');
+      card.classList.add('show');
+      const start = performance.now();
+      cancelAnimationFrame(raf);
+      const tick = (now) => {
+        const t = Math.min(1, (now - start) / HOLD);
+        bar.style.transform = 'scaleX(' + t + ')';
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(() => {
+        card.classList.remove('show');
+        card.classList.add('hide');
+      }, HOLD);
+    }
+
+    const socket = io();
+    socket.on('connect', () => socket.emit('requestState'));
+    socket.on('nowPlaying', show);
+
+    const q = new URLSearchParams(location.search);
+    if (q.get('title')) {
+      show({
+        title: q.get('title'),
+        artist: q.get('artist') || '',
+        album: q.get('album') || '',
+        source: q.get('source') || 'suno',
+        cover: q.get('cover') || '/covers/maiden.svg'
+      });
+    }
+  </script>
+</body>
+</html>
