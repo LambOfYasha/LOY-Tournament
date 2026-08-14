@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TTV Tournament Chatroom QR | LOY Software</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--pink:#ff5ca8;--rose:#ff9dca;--gold:#e7b95a;--gold2:#ffe6a6;--white:#fff8fc;--muted:#cbb7c4}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{width:100%;height:100%;background:transparent!important;overflow:hidden;font-family:"Poppins",system-ui,sans-serif;color:var(--white)}
+    body{display:grid;place-items:center}
+    .card{position:relative;width:400px;padding:60px 34px 30px;text-align:center;background:radial-gradient(circle at 50% -10%,rgba(255,92,168,.12),transparent 55%),linear-gradient(180deg,rgba(18,11,18,.98),rgba(8,6,10,.99));border:1px solid var(--gold);border-radius:18px;box-shadow:0 0 0 5px rgba(8,6,10,.92),0 0 0 6px rgba(231,185,90,.45),0 24px 60px rgba(0,0,0,.65),0 0 44px rgba(255,92,168,.18)}
+    .card:before{content:"";position:absolute;inset:9px;border:1px solid rgba(255,92,168,.35);border-radius:12px;pointer-events:none}
+    .corner{position:absolute;color:var(--gold2);font-size:12px;text-shadow:0 0 8px rgba(231,185,90,.9)}
+    .corner.tl{top:12px;left:14px}.corner.tr{top:12px;right:14px}.corner.bl{bottom:12px;left:14px}.corner.br{bottom:12px;right:14px}
+    .badge{position:absolute;top:-33px;left:50%;transform:translateX(-50%);width:66px;height:66px;border-radius:50%;display:grid;place-items:center;font-size:27px;color:var(--pink);background:radial-gradient(circle at 50% 35%,rgba(60,20,40,.98),rgba(12,7,12,.99));border:2px solid var(--pink);box-shadow:0 0 0 4px rgba(8,6,10,.92),0 0 22px rgba(255,92,168,.55)}
+    h1{font-size:26px;font-weight:800;letter-spacing:.01em;text-shadow:0 2px 0 #000,0 0 18px rgba(255,92,168,.35)}
+    .sub{margin-top:7px;font-family:"Cinzel",serif;font-size:14px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--rose)}
+    .sub:before{content:"✦  ";color:var(--gold2)}.sub:after{content:"  ✦";color:var(--gold2)}
+    .qr-frame{width:max-content;margin:22px auto 18px;padding:12px;background:#fff;border-radius:10px;border:3px solid var(--gold);box-shadow:0 0 0 4px rgba(8,6,10,.92),0 0 0 5px rgba(255,92,168,.5),0 0 30px rgba(255,92,168,.35)}
+    .qr-frame #qr{display:block;width:216px;height:216px}
+    .divider{width:62%;height:1px;margin:2px auto 14px;background:linear-gradient(90deg,transparent,var(--pink),transparent);position:relative}
+    .divider:after{content:"🐾";position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--pink);text-shadow:0 0 8px rgba(255,92,168,.8)}
+    .note{color:var(--muted);font-size:12.5px;line-height:1.55;max-width:300px;margin:0 auto}
+    .footer-pill{position:relative;z-index:2;width:max-content;margin:22px auto 0;padding:7px 20px;border:1px solid var(--gold);border-radius:999px;background:linear-gradient(90deg,rgba(8,8,12,.96),rgba(40,18,34,.96),rgba(8,8,12,.96));color:var(--rose);font-weight:800;font-size:13px;letter-spacing:.12em;box-shadow:0 0 18px rgba(255,92,168,.25)}
+    .footer-pill:before{content:"📺  "}.footer-pill:after{content:"  🐾"}
+    .maiden{position:absolute;left:-56px;bottom:-22px;width:148px;height:148px;object-fit:cover;object-position:center 22%;border-radius:50%;border:2px solid var(--pink);box-shadow:0 0 0 4px rgba(8,6,10,.92),0 0 26px rgba(255,92,168,.5)}
+    .cross-deco{position:absolute;right:-24px;bottom:56px;width:44px;transform:rotate(6deg);filter:drop-shadow(0 0 10px rgba(231,185,90,.7))}
+    .paw-deco{position:absolute;font-size:22px;color:var(--pink);opacity:.5;text-shadow:0 0 10px rgba(255,92,168,.6)}
+    .paw-deco.pd1{top:54px;right:22px;transform:rotate(18deg)}
+    .paw-deco.pd2{bottom:88px;left:20px;transform:rotate(-14deg)}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="corner tl">✦</span><span class="corner tr">✦</span><span class="corner bl">✦</span><span class="corner br">✦</span>
+    <div class="badge">👥</div>
+    <h1>TTV Tournament Chatroom</h1>
+    <p class="sub">WhatsApp group</p>
+    <div class="qr-frame"><div id="qr"></div></div>
+    <div class="divider"></div>
+    <p class="note">This group QR code is private. If it is shared with someone, they can scan it with their WhatsApp camera to join this group.</p>
+    <div class="footer-pill">ttv lambs_shadow</div>
+    <img class="maiden" src="/ornaments/maiden.jpg" alt="">
+    <img class="cross-deco" src="/ornaments/cross.png" alt="">
+    <span class="paw-deco pd1">🐾</span><span class="paw-deco pd2">🐾</span>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+    const QR_LINK = 'https://chat.whatsapp.com/PUT-YOUR-INVITE-CODE-HERE';
+    const link = new URLSearchParams(location.search).get('link') || QR_LINK;
+    new QRCode(document.getElementById('qr'), { text: link, width: 216, height: 216, colorDark: '#180a12', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+  </script>
+</body>
+</html>
