@@ -339,7 +339,7 @@ export function TournamentPanel() {
           <img src="/ornaments/bow.png" alt="" className="ornament bow-bl" />
           <img src="/ornaments/cross.png" alt="" className="ornament cross-bl" />
           <img src="/ornaments/cross.png" alt="" className="ornament cross-br" />
-          <img src="/ornaments/panda.png" alt="Panda mascot" className="ornament panda" />
+          <img src="/ornaments/panda.png?v=xiaoyu" alt="Xiao PandaMaiden" className="ornament panda" />
 
           <header className="title-wrap">
             <img src="/ornaments/cross.png" alt="" className="title-cross top" />

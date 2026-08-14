@@ -4,7 +4,7 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "Tournament Control Panel";
+const APP_NAME = "Xiao_PandaMaiden Overlays";
 const host = import.meta.env.VITE_PUBLIC_HOSTNAME;
 const ogImage = host
   ? `https://${host}/og.jpg`
@@ -16,7 +16,7 @@ export const Route = createRootRoute({
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: APP_NAME },
-      { name: "description", content: "Gothic fighting-game tournament overlay control panel." },
+      { name: "description", content: "Xiao_PandaMaiden overlays — #lambs_shadow courtyard, Sunday Bible & Tekken." },
       { name: "apple-mobile-web-app-title", content: APP_NAME },
       { name: "theme-color", content: "#0c070a" },
       { name: "twitter:card", content: "summary_large_image" },

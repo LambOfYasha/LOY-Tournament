@@ -10,7 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as DeskRouteImport } from './routes/desk'
+import { Route as DevRouteImport } from './routes/dev'
+import { Route as EventsRouteImport } from './routes/events'
+import { Route as IntermissionRouteImport } from './routes/intermission'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as OffstreamRouteImport } from './routes/offstream'
+import { Route as OverlayRouteImport } from './routes/overlay'
+import { Route as StudyRouteImport } from './routes/study'
+import { Route as WatchRouteImport } from './routes/watch'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -18,9 +27,54 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeskRoute = DeskRouteImport.update({
+  id: '/desk',
+  path: '/desk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevRoute = DevRouteImport.update({
+  id: '/dev',
+  path: '/dev',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntermissionRoute = IntermissionRouteImport.update({
+  id: '/intermission',
+  path: '/intermission',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OffstreamRoute = OffstreamRouteImport.update({
+  id: '/offstream',
+  path: '/offstream',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OverlayRoute = OverlayRouteImport.update({
+  id: '/overlay',
+  path: '/overlay',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StudyRoute = StudyRouteImport.update({
+  id: '/study',
+  path: '/study',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WatchRoute = WatchRouteImport.update({
+  id: '/watch',
+  path: '/watch',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -31,31 +85,104 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
+  '/desk': typeof DeskRoute
+  '/dev': typeof DevRoute
+  '/events': typeof EventsRoute
+  '/intermission': typeof IntermissionRoute
   '/login': typeof LoginRoute
+  '/offstream': typeof OffstreamRoute
+  '/overlay': typeof OverlayRoute
+  '/study': typeof StudyRoute
+  '/watch': typeof WatchRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
+  '/desk': typeof DeskRoute
+  '/dev': typeof DevRoute
+  '/events': typeof EventsRoute
+  '/intermission': typeof IntermissionRoute
   '/login': typeof LoginRoute
+  '/offstream': typeof OffstreamRoute
+  '/overlay': typeof OverlayRoute
+  '/study': typeof StudyRoute
+  '/watch': typeof WatchRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
+  '/desk': typeof DeskRoute
+  '/dev': typeof DevRoute
+  '/events': typeof EventsRoute
+  '/intermission': typeof IntermissionRoute
   '/login': typeof LoginRoute
+  '/offstream': typeof OffstreamRoute
+  '/overlay': typeof OverlayRoute
+  '/study': typeof StudyRoute
+  '/watch': typeof WatchRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/chat'
+    | '/desk'
+    | '/dev'
+    | '/events'
+    | '/intermission'
+    | '/login'
+    | '/offstream'
+    | '/overlay'
+    | '/study'
+    | '/watch'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/api/auth/$'
-  id: '__root__' | '/' | '/login' | '/api/auth/$'
+  to:
+    | '/'
+    | '/chat'
+    | '/desk'
+    | '/dev'
+    | '/events'
+    | '/intermission'
+    | '/login'
+    | '/offstream'
+    | '/overlay'
+    | '/study'
+    | '/watch'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/chat'
+    | '/desk'
+    | '/dev'
+    | '/events'
+    | '/intermission'
+    | '/login'
+    | '/offstream'
+    | '/overlay'
+    | '/study'
+    | '/watch'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChatRoute: typeof ChatRoute
+  DeskRoute: typeof DeskRoute
+  DevRoute: typeof DevRoute
+  EventsRoute: typeof EventsRoute
+  IntermissionRoute: typeof IntermissionRoute
   LoginRoute: typeof LoginRoute
+  OffstreamRoute: typeof OffstreamRoute
+  OverlayRoute: typeof OverlayRoute
+  StudyRoute: typeof StudyRoute
+  WatchRoute: typeof WatchRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -68,11 +195,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desk': {
+      id: '/desk'
+      path: '/desk'
+      fullPath: '/desk'
+      preLoaderRoute: typeof DeskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dev': {
+      id: '/dev'
+      path: '/dev'
+      fullPath: '/dev'
+      preLoaderRoute: typeof DevRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/intermission': {
+      id: '/intermission'
+      path: '/intermission'
+      fullPath: '/intermission'
+      preLoaderRoute: typeof IntermissionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offstream': {
+      id: '/offstream'
+      path: '/offstream'
+      fullPath: '/offstream'
+      preLoaderRoute: typeof OffstreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/overlay': {
+      id: '/overlay'
+      path: '/overlay'
+      fullPath: '/overlay'
+      preLoaderRoute: typeof OverlayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/study': {
+      id: '/study'
+      path: '/study'
+      fullPath: '/study'
+      preLoaderRoute: typeof StudyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/watch': {
+      id: '/watch'
+      path: '/watch'
+      fullPath: '/watch'
+      preLoaderRoute: typeof WatchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -87,7 +277,16 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChatRoute: ChatRoute,
+  DeskRoute: DeskRoute,
+  DevRoute: DevRoute,
+  EventsRoute: EventsRoute,
+  IntermissionRoute: IntermissionRoute,
   LoginRoute: LoginRoute,
+  OffstreamRoute: OffstreamRoute,
+  OverlayRoute: OverlayRoute,
+  StudyRoute: StudyRoute,
+  WatchRoute: WatchRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

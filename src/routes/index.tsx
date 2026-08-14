@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { TournamentPanel } from "@/components/tournament-panel";
+import { MusicStudio } from "@/components/music-studio";
 
 export const Route = createFileRoute("/")({
   component: Home,
@@ -7,5 +7,5 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  return <TournamentPanel />;
+  return <MusicStudio />;
 }

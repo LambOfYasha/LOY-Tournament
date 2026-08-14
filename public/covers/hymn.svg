@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6a2040"/>
+      <stop offset="40%" stop-color="#c4457a"/>
+      <stop offset="70%" stop-color="#d4b06a"/>
+      <stop offset="100%" stop-color="#1a0a10"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="#080406"/>
+  <g stroke="#d4b06a" stroke-width="2" fill="url(#glass)">
+    <polygon points="200,36 248,120 200,160 152,120"/>
+    <polygon points="248,120 340,140 300,210 200,160"/>
+    <polygon points="152,120 60,140 100,210 200,160"/>
+    <polygon points="200,160 300,210 200,364 100,210"/>
+  </g>
+  <path d="M196 150h8v40h28v8h-28v70h-8v-70h-28v-8h28z" fill="#f0dca0"/>
+  <rect x="16" y="16" width="368" height="368" fill="none" stroke="#d4b06a" stroke-width="4"/>
+</svg>
